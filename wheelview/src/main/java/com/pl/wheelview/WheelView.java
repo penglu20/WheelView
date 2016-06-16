@@ -768,6 +768,28 @@ public class WheelView extends View {
     };
 
     /**
+     * 获取当前展示的项目数量
+     * @return
+     */
+    public int getItemNumber() {
+        return itemNumber;
+    }
+
+    /**
+     * 设置展示的项目数量
+     * @param itemNumber
+     * @param adjustMaskHeight 是否同步调整蒙版高度，除了正中间的一个之外都被遮挡，true为调整
+     */
+    public void setItemNumber(int itemNumber,boolean adjustMaskHeight) {
+        this.itemNumber = itemNumber;
+        controlHeight = itemNumber * unitHeight;
+        if (adjustMaskHeight) {
+            maskHeight = (itemNumber / 2) * unitHeight;
+        }
+        requestLayout();
+    }
+
+    /**
      * 单条内容
      *
      * @author JiangPing

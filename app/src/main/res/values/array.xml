@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="weeks">
+        <item name="Sun">周日</item>
+        <item name="Mon">周一</item>
+        <item name="Tues">周二</item>
+        <item name="Wed">周三</item>
+        <item name="Thur">周四</item>
+        <item name="Fri">周五</item>
+        <item name="Sat">周六</item>
+    </string-array>
+
+
+</resources>
