@@ -191,10 +191,6 @@ public class WheelView extends View {
 
         controlHeight = itemNumber * unitHeight;
         lastMeasuredHeight=controlHeight;
-
-
-
-
     }
 
     @Override
@@ -280,6 +276,7 @@ public class WheelView extends View {
         if (!isEnable)
             return true;
         int y = (int) event.getY();
+        int move = Math.abs(y - downY);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 getParent().requestDisallowInterceptTouchEvent(true);
@@ -297,11 +294,12 @@ public class WheelView extends View {
             case MotionEvent.ACTION_MOVE:
                 isGoOnMove=false;
                 isScrolling = true;
-                actionMove(y - downY);
+                if (move>=clickDistance) {
+                    actionMove(y - downY);
+                }
                 onSelectListener();
                 break;
             case MotionEvent.ACTION_UP:
-                int move = Math.abs(y - downY);
                 long time= System.currentTimeMillis()-downTime;
                 // 判断这段时间移动的距离
                 if (time < goonTime && move > goonDistance) {
@@ -455,8 +453,13 @@ public class WheelView extends View {
         if (!noEmpty)
             return;
         for (ItemObject item : itemList) {
-            if (item.selected())
+            if (item.selected()){
+                int move = (int) item.moveToSelected();
+                defaultMove(move);
+                if (onSelectListener != null)
+                    onSelectListener.endSelect(item.id, item.getItemText());
                 return;
+            }
         }
         int move = (int) itemList.get(0).moveToSelected();
         if (move < 0) {
@@ -473,6 +476,7 @@ public class WheelView extends View {
             }
         }
     }
+
 
     /**
      * 移动的时候
@@ -535,9 +539,6 @@ public class WheelView extends View {
                     for (int i = 0; i < itemList.size(); i++) {
                         if (itemList.get(i).couldSelected()) {
                             newMove = (int) itemList.get(i).moveToSelected();
-//                            if (onSelectListener != null)
-//                                onSelectListener.endSelect(itemList.get(i).id,
-//                                        itemList.get(i).getItemText());
                             break;
                         }
                     }
@@ -545,9 +546,6 @@ public class WheelView extends View {
                     for (int i = itemList.size() - 1; i >= 0; i--) {
                         if (itemList.get(i).couldSelected()) {
                             newMove = (int) itemList.get(i).moveToSelected();
-//                            if (onSelectListener != null)
-//                                onSelectListener.endSelect(itemList.get(i).id,
-//                                        itemList.get(i).getItemText());
                             break;
                         }
                     }
@@ -562,9 +560,9 @@ public class WheelView extends View {
                 int i = newMove > 0 ? 1 : (-1);
                 // 移动速度
                 int speed = 5;
-                while (true) {
+                while (true && m!=0 ) {
                     m = m - speed;
-                    if (m <= 0) {
+                    if (m < 0) {
                         for (ItemObject item : itemList) {
                             item.newY(m * i);
                         }
@@ -588,13 +586,6 @@ public class WheelView extends View {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
-                }
-                for (ItemObject item : itemList) {
-                    if (item.selected()) {
-                        if (onSelectListener != null)
-                            onSelectListener.endSelect(item.id, item.getItemText());
-                        break;
                     }
                 }
                 Log.d(TAG,"slowMove run end");

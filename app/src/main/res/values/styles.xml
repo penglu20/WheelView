@@ -16,13 +16,13 @@
         <item name="itemNumber">3</item>
         <item name="lineColor">@color/colorAccent</item>
         <item name="lineHeight">1dp</item>
-        <item name="maskHeight">@dimen/height_small_32</item>
+        <item name="maskHeight">@dimen/height_small</item>
         <item name="noEmpty">true</item>
         <item name="normalTextColor">#222222</item>
         <item name="normalTextSize">@dimen/text_size_normal</item>
         <item name="selectedTextColor">#222222</item>
         <item name="selectedTextSize">@dimen/text_size_normal</item>
-        <item name="unitHeight">@dimen/height_small_32</item>
+        <item name="unitHeight">@dimen/height_small</item>
     </style>
 
 
