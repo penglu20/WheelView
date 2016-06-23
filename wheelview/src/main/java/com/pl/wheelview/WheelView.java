@@ -68,7 +68,7 @@ public class WheelView extends View {
      * 短促移动
      */
     private long goonTime = 200;
-    /**
+        /**
      * 短促移动距离
      */
     private int goonDistance = 100;
@@ -307,9 +307,11 @@ public class WheelView extends View {
                 } else {
                     if (move<=clickDistance){
                         if (downY<unitHeight*(itemNumber/2)&&downY>0){
-                            actionUp((int) unitHeight);
+                            actionMove((int) (unitHeight/2));
+                            actionUp((int) unitHeight/3);
                         }else if (downY>controlHeight-unitHeight*(itemNumber/2)&&downY<controlHeight){
-                            actionUp(-(int) unitHeight);
+                            actionMove(-(int) (unitHeight/2));
+                            actionUp(-(int) unitHeight/3);
                         }
                     }else {
                         actionUp(y - downY);
@@ -449,9 +451,10 @@ public class WheelView extends View {
     /**
      * 不能为空，必须有选项
      */
-    private void noEmpty() {
+    private void noEmpty(int moveSymbol) {
         if (!noEmpty)
             return;
+        //将当前选择项目移动到正中间，防止出现偏差
         for (ItemObject item : itemList) {
             if (item.selected()){
                 int move = (int) item.moveToSelected();
@@ -461,6 +464,31 @@ public class WheelView extends View {
                 return;
             }
         }
+        // 如果当前没有项目选中，则将根据滑动的方向，将最近的设为选择项目，并移动到正中间
+        if (moveSymbol > 0) {
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i).couldSelected()) {
+                    int move = (int) itemList.get(i).moveToSelected();
+                    defaultMove(move);
+                    if (onSelectListener != null) {
+                        onSelectListener.endSelect(itemList.get(i).id, itemList.get(i).getItemText());
+                    }
+                    return;
+                }
+            }
+        } else {
+            for (int i = itemList.size() - 1; i >= 0; i--) {
+                if (itemList.get(i).couldSelected()) {
+                    int move = (int) itemList.get(i).moveToSelected();
+                    defaultMove(move);
+                    if (onSelectListener != null) {
+                        onSelectListener.endSelect(itemList.get(i).id, itemList.get(i).getItemText());
+                    }
+                    return;
+                }
+            }
+        }
+        //如果没有项目可被选中，则说明所有项目都在视图外，选择第一个或者最后一个为当前选中项
         int move = (int) itemList.get(0).moveToSelected();
         if (move < 0) {
             defaultMove(move);
@@ -499,9 +527,7 @@ public class WheelView extends View {
         for (ItemObject item : itemList) {
             item.move(move);
         }
-        Message rMessage = new Message();
-        rMessage.what = REFRESH_VIEW;
-        handler.sendMessage(rMessage);
+        handler.sendEmptyMessage(REFRESH_VIEW);
     }
 
     /**
@@ -513,9 +539,7 @@ public class WheelView extends View {
         Log.d(TAG,"action up start");
 
         slowMove(move);
-        Message rMessage = handler.obtainMessage();
-        rMessage.what = REFRESH_VIEW;
-        handler.sendMessage(rMessage);
+        handler.sendEmptyMessage(REFRESH_VIEW);
 
         Log.d(TAG,"action up end");
     }
@@ -557,18 +581,16 @@ public class WheelView extends View {
                 Log.d(TAG,"slowMove run start");
                 // 判断正负
                 int m = newMove > 0 ? newMove : newMove * (-1);
-                int i = newMove > 0 ? 1 : (-1);
+                int symbol = newMove > 0 ? 1 : (-1);
                 // 移动速度
                 int speed = 5;
                 while (true && m!=0 ) {
                     m = m - speed;
                     if (m < 0) {
                         for (ItemObject item : itemList) {
-                            item.newY(m * i);
+                            item.newY(m * symbol);
                         }
-                        Message rMessage = new Message();
-                        rMessage.what = REFRESH_VIEW;
-                        handler.sendMessage(rMessage);
+                        handler.sendEmptyMessage(REFRESH_VIEW);
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException e) {
@@ -577,11 +599,9 @@ public class WheelView extends View {
                         break;
                     }
                     for (ItemObject item : itemList) {
-                        item.newY(speed * i);
+                        item.newY(speed * symbol);
                     }
-                    Message rMessage = new Message();
-                    rMessage.what = REFRESH_VIEW;
-                    handler.sendMessage(rMessage);
+                    handler.sendEmptyMessage(REFRESH_VIEW);
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
@@ -589,7 +609,13 @@ public class WheelView extends View {
                     }
                 }
                 Log.d(TAG,"slowMove run end");
-                noEmpty();
+//                goOnHandler.removeCallbacksAndMessages(null);
+//                goOnHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    }
+//                });
+                        noEmpty(move);
             }
         });
         Log.d(TAG,"slowMove end");
@@ -604,9 +630,7 @@ public class WheelView extends View {
         for (ItemObject item : itemList) {
             item.newY(move);
         }
-        Message rMessage = new Message();
-        rMessage.what = REFRESH_VIEW;
-        handler.sendMessage(rMessage);
+        handler.sendEmptyMessage(REFRESH_VIEW);
     }
 
     /**
