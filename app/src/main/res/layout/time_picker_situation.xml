@@ -15,7 +15,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/from_hour"
 
-            style="@style/wheelViewStyle_sleep"
+            style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
         <android.support.v7.widget.AppCompatTextView
@@ -31,7 +31,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/from_minute"
 
-            style="@style/wheelViewStyle_sleep"
+            style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
 
         <android.support.v7.widget.AppCompatTextView
@@ -46,7 +46,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/to_hour"
-            style="@style/wheelViewStyle_sleep"
+            style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
 
@@ -62,7 +62,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/to_minute"
-            style="@style/wheelViewStyle_sleep"
+            style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
     </LinearLayout>
 

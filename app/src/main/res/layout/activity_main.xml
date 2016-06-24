@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:gravity="center_vertical"
-        android:text="Hello World!" />
+        android:text="请选择时间" />
 
     <com.pl.wheelview.FromToTimePicker
         android:id="@+id/timePicker"
@@ -29,10 +29,10 @@
         android:layout_height="20dp"
         android:gravity="center_vertical"
         android:layout_below="@id/timePicker"
-        android:text="Hello World!" />
+        android:text="请选择城市" />
 
-    <com.pl.wheelview.FromToTimePicker
-        android:id="@+id/timePicker1"
+    <com.pl.wheelview.CityPickerLayout
+        android:id="@+id/cityPicker"
         android:layout_width="300dp"
         android:layout_below="@id/result1"
         android:layout_height="300dp"/>

@@ -13,7 +13,6 @@
         <attr name="lineColor" format="color" />
         <attr name="lineHeight" format="dimension" />
 
-        <attr name="maskHeight" format="dimension"/>
         <attr name="noEmpty" format="boolean"/>
         <attr name="isEnable" format="boolean"/>
     </declare-styleable>

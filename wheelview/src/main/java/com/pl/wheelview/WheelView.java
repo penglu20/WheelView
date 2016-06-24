@@ -25,11 +25,6 @@ import com.pl.whellview.R;
 
 import java.util.ArrayList;
 
-/**
- * WheelView滚轮
- *
- * @author JiangPing
- */
 public class WheelView extends View {
     private static final String TAG="WheelView";
 
@@ -112,10 +107,7 @@ public class WheelView extends View {
      * 选中时候的字体颜色
      */
     private int selectedColor = 0xffff0000;
-    /**
-     * 蒙板高度
-     */
-    private float maskHeight = 48.0f;
+
     /**
      * 选择监听
      */
@@ -183,7 +175,6 @@ public class WheelView extends View {
         lineColor = attribute.getColor(R.styleable.WheelView_lineColor, lineColor);
         lineHeight = attribute.getDimension(R.styleable.WheelView_lineHeight, lineHeight);
 
-        maskHeight = attribute.getDimension(R.styleable.WheelView_maskHeight, maskHeight);
         noEmpty = attribute.getBoolean(R.styleable.WheelView_noEmpty, true);
         isEnable = attribute.getBoolean(R.styleable.WheelView_isEnable, true);
 
@@ -352,13 +343,11 @@ public class WheelView extends View {
             if (atMostHeight<controlHeight&&atMostHeight!=0 ){
                 controlHeight=atMostHeight;
                 unitHeight= (int) (controlHeight/itemNumber);
-                maskHeight= (int) (controlHeight/itemNumber);
             }
         }else if (heightMode==MeasureSpec.EXACTLY){
             int height=MeasureSpec.getSize(heightMeasureSpec);
             controlHeight=height;
             unitHeight= (int) (controlHeight/itemNumber);
-            maskHeight= (int) (controlHeight/itemNumber);
         }else if (heightMode==MeasureSpec.UNSPECIFIED){
 //            return;
         }
@@ -432,17 +421,17 @@ public class WheelView extends View {
      * @param canvas
      */
     private void drawMask(Canvas canvas) {
-        LinearGradient lg = new LinearGradient(0, 0, 0, maskHeight, 0xD8ffffff,
+        LinearGradient lg = new LinearGradient(0, 0, 0, unitHeight, 0xD8ffffff,
                 0xc0ffffff, TileMode.MIRROR);
         Paint paint = new Paint();
         paint.setShader(lg);
-        canvas.drawRect(0, 0, controlWidth, maskHeight, paint);
+        canvas.drawRect(0, 0, controlWidth, itemNumber/2*unitHeight, paint);
 
-        LinearGradient lg2 = new LinearGradient(0, controlHeight - maskHeight,
+        LinearGradient lg2 = new LinearGradient(0, controlHeight - unitHeight,
                 0, controlHeight, 0xc0ffffff, 0xD8ffffff, TileMode.MIRROR);
         Paint paint2 = new Paint();
         paint2.setShader(lg2);
-        canvas.drawRect(0, controlHeight - maskHeight, controlWidth,
+        canvas.drawRect(0, controlHeight - itemNumber/2*unitHeight, controlWidth,
                 controlHeight, paint2);
     }
 
@@ -454,7 +443,7 @@ public class WheelView extends View {
     private void noEmpty(int moveSymbol) {
         if (!noEmpty)
             return;
-        //将当前选择项目移动到正中间，防止出现偏差
+        // 将当前选择项目移动到正中间，防止出现偏差
         for (ItemObject item : itemList) {
             if (item.selected()){
                 int move = (int) item.moveToSelected();
@@ -464,7 +453,7 @@ public class WheelView extends View {
                 return;
             }
         }
-        // 如果当前没有项目选中，则将根据滑动的方向，将最近的设为选择项目，并移动到正中间
+        // 如果当前没有项目选中，则将根据滑动的方向，将最近的一项设为选中项目，并移动到正中间
         if (moveSymbol > 0) {
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList.get(i).couldSelected()) {
@@ -537,10 +526,8 @@ public class WheelView extends View {
      */
     private void actionUp(int move) {
         Log.d(TAG,"action up start");
-
         slowMove(move);
         handler.sendEmptyMessage(REFRESH_VIEW);
-
         Log.d(TAG,"action up end");
     }
 
@@ -559,6 +546,7 @@ public class WheelView extends View {
             @Override
             public void run() {
                 int newMove = 0;
+                //根据当前滑动方向，选择选中项来移到中心显示
                 if (move > 0) {
                     for (int i = 0; i < itemList.size(); i++) {
                         if (itemList.get(i).couldSelected()) {
@@ -609,13 +597,7 @@ public class WheelView extends View {
                     }
                 }
                 Log.d(TAG,"slowMove run end");
-//                goOnHandler.removeCallbacksAndMessages(null);
-//                goOnHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                    }
-//                });
-                        noEmpty(move);
+                noEmpty(move);
             }
         });
         Log.d(TAG,"slowMove end");
@@ -793,27 +775,18 @@ public class WheelView extends View {
     /**
      * 设置展示的项目数量
      * @param itemNumber
-     * @param adjustMaskHeight 是否同步调整蒙版高度，除了正中间的一个之外都被遮挡，true为调整
      */
-    public void setItemNumber(int itemNumber,boolean adjustMaskHeight) {
+    public void setItemNumber(int itemNumber) {
         this.itemNumber = itemNumber;
         controlHeight = itemNumber * unitHeight;
-        if (adjustMaskHeight) {
-            maskHeight = (itemNumber / 2) * unitHeight;
-        }
         requestLayout();
     }
 
-    /**
-     * 单条内容
-     *
-     * @author JiangPing
-     */
     private class ItemObject {
         /**
          * id
          */
-        public int id = 0;
+        int id = 0;
         /**
          * 内容
          */
@@ -821,15 +794,15 @@ public class WheelView extends View {
         /**
          * x坐标
          */
-        public int x = 0;
+        int x = 0;
         /**
-         * y坐标
+         * y坐标,代表静止时的位置
          */
-        public int y = 0;
+        int y = 0;
         /**
-         * 移动距离
+         * 移动距离，代表滑动的位置，滑动结束后应该置0
          */
-        public int move = 0;
+        int move = 0;
         /**
          * 字体画笔
          */
@@ -839,11 +812,7 @@ public class WheelView extends View {
          */
         private Rect textRect;
 
-        private boolean isSelect=false;
         private boolean shouldRefreshTextPaint=true;
-        public ItemObject() {
-            super();
-        }
 
         /**
          * 绘制自身
@@ -852,7 +821,7 @@ public class WheelView extends View {
          * @param containerWidth 容器宽度
          */
         public void drawSelf(Canvas canvas, int containerWidth) {
-            // 判断是否可视
+
 
             // 返回包围整个字符串的最小的一个Rect区域
             if (textPaint==null) {
@@ -885,12 +854,17 @@ public class WheelView extends View {
             }
 
             if (shouldRefreshTextPaint) {
-
+                //有可能导致文字消失，itemText变成空字符串，
+                // 是因为文字设置过大，而containweWidth太小，
+                // 本来会将无法显示的文字用"..."表示，但是连"..."本身也无法显示的时候，就会变成空字符串
                 itemText = (String) TextUtils.ellipsize(itemText, textPaint, containerWidth, TextUtils.TruncateAt.END);
                 textPaint.getTextBounds(itemText, 0, itemText.length(), textRect);
-                shouldRefreshTextPaint=false;
+                if (selectedFont==normalFont) {
+                    shouldRefreshTextPaint = false;
+                }
             }
 
+            // 判断是否可视
             if (!isInView()) {
                 return;
             }
@@ -932,31 +906,31 @@ public class WheelView extends View {
         }
 
         /**
-         * 判断是否在可以选择区域内
+         * 判断是否在可以选择区域内,用于在没有刚好被选中项的时候判断备选项
+         * 判断规则并不是在正中间，和其上下对称的间距
+         * 而是考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度
+         * 因此判断为可选区域的标准是需要减去文字的部分的，但是考虑到测量文字的开销，这里直接进行粗略的估计
+         * 也就是y+m在正中间和正中间上面一格的范围内，则判断为可选
+         * 如果画个图就会比较好理解了
+         * 目前测试没有问题，暂时这么处理吧
          *
          * @return
          */
         public  synchronized boolean couldSelected() {
-                isSelect=true;
-//                if ((y+move)>=(controlHeight-unitHeight*((itemNumber)/2+1.5f)+(float)textRect.height() / 2f)&&
-//                        (y+move)<=(controlHeight-unitHeight*(itemNumber/2-0.5f)-(float)textRect.height() / 2f)){
-                if (y+move<=itemNumber/2*unitHeight-unitHeight||y+move>=itemNumber/2*unitHeight+unitHeight){
-                    isSelect=false;
-                }
+            boolean isSelect=true;
+            if (y+move<=itemNumber/2*unitHeight-unitHeight||y+move>=itemNumber/2*unitHeight+unitHeight){
+                isSelect=false;
+            }
             return isSelect;
         }
 
         /**
-         * 判断是否刚好在选择区域内
+         * 判断是否刚好在正中间的选择区域内
          *
          * @return
          */
         public  synchronized boolean selected() {
-            isSelect=false;
-//            if ((y+move)>=(controlHeight-unitHeight*((itemNumber/2)+1))&&
-//                    (y+move)<=(controlHeight-unitHeight*(itemNumber/2))){
-//                isSelect=true;
-//            }
+            boolean  isSelect=false;
             if (textRect==null){
                 return false;
             }
@@ -976,21 +950,16 @@ public class WheelView extends View {
         }
 
         /**
-         * 获取移动到标准位置需要的距离
+         * 获取移动到选中位置需要的距离
          */
         public synchronized  float moveToSelected() {
             return (controlHeight / 2 - unitHeight / 2) - (y + move);
         }
     }
 
-    /**
-     * 选择监听
-     *
-     * @author JiangPing
-     */
     public interface OnSelectListener {
         /**
-         * 结束选择
+         * 结束选择，滑动停止时回调
          *
          * @param id
          * @param text
@@ -998,7 +967,7 @@ public class WheelView extends View {
         void endSelect(int id, String text);
 
         /**
-         * 选中的内容
+         * 选中的内容，滑动的过程中会不断回调
          *
          * @param id
          * @param text

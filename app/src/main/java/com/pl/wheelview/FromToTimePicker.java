@@ -83,10 +83,10 @@ public class FromToTimePicker extends LinearLayout {
     }
 
     public void setWheelViewItemNumber(int number){
-        mWheelFromHour  .setItemNumber(number,true);
-        mWheelFromMinute.setItemNumber(number,true);
-        mWheelToHour    .setItemNumber(number,true);
-        mWheelToMinute  .setItemNumber(number,true);
+        mWheelFromHour  .setItemNumber(number);
+        mWheelFromMinute.setItemNumber(number);
+        mWheelToHour    .setItemNumber(number);
+        mWheelToMinute  .setItemNumber(number);
     }
 
     @Override
