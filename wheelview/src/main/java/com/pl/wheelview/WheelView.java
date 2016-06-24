@@ -257,8 +257,11 @@ public class WheelView extends View {
     private synchronized void goonMove(final long time, final long move) {
         goOnMove= (int) move;
         showTime=0;
-        goOnLimit= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*2/time));
+        goOnLimit= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)/time));
         isGoOnMove=true;
+        for (ItemObject item : itemList) {
+            item.newY((int) (unitHeight*Math.floor(item.move/unitHeight)));
+        }
         goOnHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
     }
 
@@ -871,7 +874,7 @@ public class WheelView extends View {
 
             // 绘制内容
             canvas.drawText(itemText, ((float)x + (float)controlWidth / 2f - (float)textRect.width() / 2f),
-                    ((float)y + (float)move + (float)unitHeight / 2 + (float)textRect.height() / 2f), textPaint);
+                    ((float)(y + move) + unitHeight / 2 + (float)textRect.height() / 2f), textPaint);
 
         }
 
