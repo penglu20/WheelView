@@ -164,19 +164,19 @@ public class WheelView extends View {
     /**
      * 连续滑动动画的绘制计数
      */
-    int showTime=0;
+    private int showTime=0;
     /**
      * 保存最近一次连续滑动的距离的原始值
      */
-    int goOnMove;
+    private int goOnMove;
     /**
      * 当前连续滑动中已经滑动的距离
      */
-    int goOnDistance;
+    private int goOnDistance;
     /**
      * 是否正在连续滑动状态中
      */
-    boolean isGoOnMove=false;
+    private boolean isGoOnMove=false;
     /**
      * 滑动动画的HandlerThread
      */
@@ -253,7 +253,7 @@ public class WheelView extends View {
         super.onDetachedFromWindow();
     }
 
-    class GoOnHandler extends Handler{
+    private class GoOnHandler extends Handler{
         GoOnHandler(Looper looper){
             super(looper);
         }
@@ -805,8 +805,7 @@ public class WheelView extends View {
     }
 
     /**
-     * 监听
-     *
+     * 对WheelView设置监听，在滑动过程或者滑动停止返回数据信息。
      * @param onSelectListener
      */
     public void setOnSelectListener(OnSelectListener onSelectListener) {
@@ -814,8 +813,7 @@ public class WheelView extends View {
     }
 
     @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
