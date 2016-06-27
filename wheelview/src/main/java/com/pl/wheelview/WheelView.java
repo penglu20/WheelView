@@ -87,7 +87,7 @@ public class WheelView extends View {
     /**
      * 缓慢滚动的时候的速度
      */
-    public static final int SLOW_MOVE_SPEED = 5;
+    public static final int SLOW_MOVE_SPEED = 3;
     /**
      * 画线画笔
      */
@@ -312,7 +312,7 @@ public class WheelView extends View {
         if (time<=0){
             time=1;
         }
-        goOnLimit= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*2/time));
+        goOnLimit= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*2/time)+unitHeight/3);
         isGoOnMove=true;
         //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
         //防止重复滑动同一次Action_Down中滑动的部分
@@ -579,7 +579,9 @@ public class WheelView extends View {
         for (ItemObject item : itemList) {
             item.move(move);
         }
-        handler.sendEmptyMessage(REFRESH_VIEW);
+//        handler.sendEmptyMessage(REFRESH_VIEW);
+
+        postInvalidate();
     }
 
     /**
@@ -589,7 +591,9 @@ public class WheelView extends View {
      */
     private void actionUp(int move) {
         slowMove(move);
-        handler.sendEmptyMessage(REFRESH_VIEW);
+//        handler.sendEmptyMessage(REFRESH_VIEW);
+
+        postInvalidate();
     }
 
     /**
@@ -644,7 +648,8 @@ public class WheelView extends View {
                         for (ItemObject item : itemList) {
                             item.newY(m * symbol);
                         }
-                        handler.sendEmptyMessage(REFRESH_VIEW);
+//                        handler.sendEmptyMessage(REFRESH_VIEW);
+                        postInvalidate();
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException e) {
@@ -655,7 +660,8 @@ public class WheelView extends View {
                     for (ItemObject item : itemList) {
                         item.newY(speed * symbol);
                     }
-                    handler.sendEmptyMessage(REFRESH_VIEW);
+//                    handler.sendEmptyMessage(REFRESH_VIEW);
+                    postInvalidate();
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
@@ -678,7 +684,8 @@ public class WheelView extends View {
         for (ItemObject item : itemList) {
             item.newY(move);
         }
-        handler.sendEmptyMessage(REFRESH_VIEW);
+//        handler.sendEmptyMessage(REFRESH_VIEW);
+        postInvalidate();
     }
 
     /**
@@ -812,21 +819,21 @@ public class WheelView extends View {
         this.onSelectListener = onSelectListener;
     }
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case REFRESH_VIEW:
-                    invalidate();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    };
+//    @SuppressLint("HandlerLeak")
+//    private Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            switch (msg.what) {
+//                case REFRESH_VIEW:
+//                    invalidate();
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//
+//    };
 
     /**
      * 获取当前展示的项目数量
