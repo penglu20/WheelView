@@ -1,6 +1,5 @@
 package com.pl.wheelview;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -15,7 +14,6 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -78,12 +76,12 @@ public class WheelView extends View {
     /**
      * 快速移动的时间
      */
-    private long goonTime = 200;//ms
+//    private long goonTime = 200;//ms
     /**
      * 快速移动的距离
      */
-    private static final int GOON_MIN_DISTANCE =50;//dp
-    private int goOnMinDistance;//px
+//    private static final int GOON_MIN_DISTANCE =30;//dp
+//    private int goOnMinDistance;//px
     /**
      * 缓慢滚动的时候的速度
      */
@@ -135,7 +133,7 @@ public class WheelView extends View {
     /**
      * 快速滑动时，移动的基础个数
      */
-    private static final int MOVE_NUMBER = 2;
+    private static final int MOVE_NUMBER = 1;
     /**
      * 是否允许选空
      */
@@ -228,7 +226,7 @@ public class WheelView extends View {
 
         attribute.recycle();
 
-        goOnMinDistance = (int) (context.getResources().getDisplayMetrics().density* GOON_MIN_DISTANCE);
+//        goOnMinDistance = (int) (context.getResources().getDisplayMetrics().density* GOON_MIN_DISTANCE);
 
         controlHeight = itemNumber * unitHeight;
         lastMeasuredHeight=controlHeight;
@@ -353,7 +351,9 @@ public class WheelView extends View {
             case MotionEvent.ACTION_UP:
                 long time= System.currentTimeMillis()-downTime;
                 // 判断这段时间移动的距离
-                if (time < goonTime && move > goOnMinDistance) {
+//                Log.d(TAG,"time="+time+",move="+move+",y - downY="+(y - downY));
+//                if (time < goonTime && move > goOnMinDistance) {
+                if ((double)move/(double)time>0.5) {//用比值来判断更精准，有些超快超短的滑动也能识别
                     goonMove(time,y - downY);
                 } else {
                     //如果移动距离很短，则认为是点击事件，否则认为是小距离滑动
