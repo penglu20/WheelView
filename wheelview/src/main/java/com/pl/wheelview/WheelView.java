@@ -85,7 +85,7 @@ public class WheelView extends View {
     /**
      * 缓慢滚动的时候的速度
      */
-    public static final int SLOW_MOVE_SPEED = 3;
+    public static final int SLOW_MOVE_SPEED = 3; //px
     /**
      * 画线画笔
      */
@@ -211,6 +211,7 @@ public class WheelView extends View {
 
         TypedArray attribute = context.obtainStyledAttributes(attrs, R.styleable.WheelView);
         unitHeight = (int) attribute.getDimension(R.styleable.WheelView_unitHeight, unitHeight);
+        //按理说应该是奇数，但是此次不做判断，使用者有义务设置正确
         itemNumber = attribute.getInt(R.styleable.WheelView_itemNumber, itemNumber);
 
         normalFont = attribute.getDimension(R.styleable.WheelView_normalTextSize, normalFont);
@@ -281,14 +282,14 @@ public class WheelView extends View {
                 case GO_ON_MOVE_END:
                     //对滑动的距离取uniHeight的整数倍，保证滑动停止后不需要大范围调整
 //                    goOnDistance= (int) (Math.ceil(goOnDistance/unitHeight)*unitHeight);
-                    actionUp(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
+                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     isScrolling = false;
                     isGoOnMove=false;
                     break;
                 case GO_ON_MOVE_INTERRUPTED:
                     //在滑动的过程中被打断，则以当前已经滑动的而距离作为新的起点，继续下一次滑动
 //                    Log.d(TAG,"GO_ON_MOVE_INTERRUPTED");
-                    goOnDistance= (int) (Math.ceil(goOnDistance/unitHeight)*unitHeight);
+                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     for (ItemObject item : itemList) {
                         item.newY(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     }
@@ -302,7 +303,9 @@ public class WheelView extends View {
 
 
     /**
-     * 继续移动一定距离
+     * 继续快速移动一段距离，连续滚动动画，滚动速度递减，速度减到SLOW_MOVE_SPEED之下后调用slowMove
+     * @param time 滑动的时间间隔
+     * @param move 滑动的距离
      */
     private synchronized void goonMove(long time, final long move) {
         goOnMove= (int) move;
@@ -356,19 +359,19 @@ public class WheelView extends View {
                 if ((double)move/(double)time>0.5) {//用比值来判断更精准，有些超快超短的滑动也能识别
                     goonMove(time,y - downY);
                 } else {
-                    //如果移动距离很短，则认为是点击事件，否则认为是小距离滑动
+                    //如果移动距离为0，则认为是点击事件，否则认为是小距离滑动
                     if (move==0){
                         if (downY<unitHeight*(itemNumber/2)&&downY>0){
                             //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
                             //通过调整move和up的距离，可以调整点击的效果
                             actionMove((int) (unitHeight/3));
-                            actionUp((int) unitHeight/3);
+                            slowMove((int) unitHeight/3);
                         }else if (downY>controlHeight-unitHeight*(itemNumber/2)&&downY<controlHeight){
                             actionMove(-(int) (unitHeight/3));
-                            actionUp(-(int) unitHeight/3);
+                            slowMove(-(int) unitHeight/3);
                         }
                     }else {
-                        actionUp(y - downY);
+                        slowMove(y - downY);
                     }
                     isScrolling = false;
                 }
@@ -448,7 +451,7 @@ public class WheelView extends View {
     }
 
     /**
-     * 绘制线条
+     * 绘制分隔线条
      *
      * @param canvas
      */
@@ -466,7 +469,11 @@ public class WheelView extends View {
         canvas.drawLine(0, controlHeight / 2 + unitHeight / 2 - lineHeight,
                 controlWidth, controlHeight / 2 + unitHeight / 2 - lineHeight, linePaint);
     }
-
+    /**
+     * 绘制待选项目
+     *
+     * @param canvas
+     */
     private synchronized void drawList(Canvas canvas) {
         if (isClearing)
             return;
@@ -479,7 +486,7 @@ public class WheelView extends View {
     }
 
     /**
-     * 绘制遮盖板
+     * 绘制上下的遮盖板
      *
      * @param canvas
      */
@@ -501,7 +508,9 @@ public class WheelView extends View {
 
 
     /**
-     * 不能为空，必须有选项
+     * 不能为空，必须有选项,滑动动画结束时调用
+     * 判断当前应该被选中的项目，如果其不在屏幕中间，则将其移动到屏幕中间
+     * @param moveSymbol 移动的距离，实际上只需要其符号，用于判断当前滑动方向
      */
     private void noEmpty(int moveSymbol) {
         if (!noEmpty)
@@ -559,9 +568,9 @@ public class WheelView extends View {
 
 
     /**
-     * 移动的时候
+     * 处理MotionEvent.ACTION_MOVE中的移动
      *
-     * @param move
+     * @param move 移动的距离
      */
     private void actionMove(int move) {
         for (ItemObject item : itemList) {
@@ -573,7 +582,7 @@ public class WheelView extends View {
     /**
      * 移动，线程中调用
      *
-     * @param move
+     * @param move 移动的距离
      */
     private void actionThreadMove(int move) {
         for (ItemObject item : itemList) {
@@ -585,21 +594,10 @@ public class WheelView extends View {
     }
 
     /**
-     * 松开的时候
-     *
-     * @param move
-     */
-    private void actionUp(int move) {
-        slowMove(move);
-//        handler.sendEmptyMessage(REFRESH_VIEW);
-
-        postInvalidate();
-    }
-
-    /**
-     * 缓慢移动
-     *
-     * @param move
+     * 缓慢移动一段距离，移动速度为SLOW_MOVE_SPEED，
+     * 注意这个距离不是move参数，而是先将选项坐标移动move的距离以后，再判断当前应该选中的项目，然后将改项目移动到中间
+     * 移动完成后调用noEmpty
+     * @param move 立即设置的新坐标移动距离，不是缓慢移动的距离
      */
     private synchronized void slowMove(final int move) {
 
@@ -678,7 +676,7 @@ public class WheelView extends View {
     /**
      * 移动到默认位置
      *
-     * @param move
+     * @param move 移动的距离
      */
     private void defaultMove(int move) {
         for (ItemObject item : itemList) {
@@ -704,7 +702,7 @@ public class WheelView extends View {
     /**
      * 设置数据 （第一次）
      *
-     * @param data
+     * @param data 数据集
      */
     public void setData(ArrayList<String> data) {
         this.dataList = data;
@@ -714,7 +712,7 @@ public class WheelView extends View {
     /**
      * 重置数据
      *
-     * @param data
+     * @param data 数据集
      */
     public void refreshData(ArrayList<String> data) {
         setData(data);
@@ -909,7 +907,7 @@ public class WheelView extends View {
                 textRect = new Rect();
             }
 
-            // 判断是否被选择
+            // 判断是否可被选择
             if (couldSelected()) {
                 textPaint.setColor(selectedColor);
                 // 获取距离标准位置的距离
@@ -960,15 +958,15 @@ public class WheelView extends View {
         public  synchronized boolean isInView() {
 
 //            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight / 2 + (float)textRect.height() / 2f) < 0)
-            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight  ) < 0)//放宽判断的条件
+            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight  ) < 0)//放宽判断的条件，否则就不能再onDraw的开头执行，而要到中间执行
                 return false;
             return true;
         }
 
         /**
-         * 移动距离
+         * 移动一段距离
          *
-         * @param _move
+         * @param _move 移动的距离
          */
         public synchronized void move(int _move) {
             this.move = _move;
@@ -977,7 +975,7 @@ public class WheelView extends View {
         /**
          * 设置新的坐标
          *
-         * @param _move
+         * @param _move 移动的距离，叠加到当前坐标上
          */
         public  synchronized void newY(int _move) {
             this.move = 0;
@@ -988,10 +986,8 @@ public class WheelView extends View {
          * 判断是否在可以选择区域内,用于在没有刚好被选中项的时候判断备选项
          * 判断规则并不是在正中间，和其上下对称的间距
          * 而是考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度
-         * 因此判断为可选区域的标准是需要减去文字的部分的，但是考虑到测量文字的开销，这里直接进行粗略的估计
+         * 因此判断为可选区域的标准是需要减去文字的部分的
          * 也就是y+m在正中间和正中间上面一格的范围内，则判断为可选
-         * 如果画个图就会比较好理解了
-         * 目前测试没有问题，暂时这么处理吧
          *
          * @return
          */

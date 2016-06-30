@@ -1,85 +1,85 @@
 # WheelView
 
-ÊµÏÖ×ªÂÖµÄÑ¡Ôñ¹¦ÄÜ£¬Ğ§¹û¼ûÏÂÍ¼:
+å®ç°è½¬è½®çš„é€‰æ‹©åŠŸèƒ½ï¼Œæ•ˆæœè§ä¸‹å›¾:
 
-![Ğ§¹ûÍ¼](https://raw.githubusercontent.com/l465659833/WheelView/master/art/sample.gif)
+![æ•ˆæœå›¾](https://raw.githubusercontent.com/l465659833/WheelView/master/art/sample.gif)
 
-±¾ÏîÄ¿ÊÇÓÉ[Õâ¸öÏîÄ¿](https://github.com/helloJp/WheelView)ĞŞ¸Ä¶ø³É£¬ÓÉÓÚÎÒ×öµÄ¸Ä¶¯ÊµÔÚÌ«´óÁË£¬»ù±¾ÉÏ³ıÁËÔ­À´µÄ´óÌå¿ò¼ÜÒÔÍâ£¬ÄÚ²¿µÄÊµÏÖÂß¼­È«¶¼×öÁË´óÁ¿ĞŞ¸Ä£¬ËùÒÔÎÒÁí¿ªÁËÒ»¸öÏîÄ¿£¬µ«±ØĞë¸ĞĞ»Ô­×÷Õß¸øÎÒµÄÆô·¢¡£
+æœ¬é¡¹ç›®æ˜¯ç”±[è¿™ä¸ªé¡¹ç›®](https://github.com/helloJp/WheelView)ä¿®æ”¹è€Œæˆï¼Œç”±äºæˆ‘åšçš„æ”¹åŠ¨å®åœ¨å¤ªå¤§äº†ï¼ŒåŸºæœ¬ä¸Šé™¤äº†åŸæ¥çš„å¤§ä½“æ¡†æ¶ä»¥å¤–ï¼Œå†…éƒ¨çš„å®ç°é€»è¾‘å…¨éƒ½åšäº†å¤§é‡ä¿®æ”¹ï¼Œæ‰€ä»¥æˆ‘å¦å¼€äº†ä¸€ä¸ªé¡¹ç›®ï¼Œä½†å¿…é¡»æ„Ÿè°¢åŸä½œè€…ç»™æˆ‘çš„å¯å‘ã€‚
 
-ÏÈËµËµÎÒËù×öµÄÓÅ»¯ºÍ¸ÄÉÆ°É£º
+å…ˆè¯´è¯´æˆ‘æ‰€åšçš„ä¼˜åŒ–å’Œæ”¹å–„å§ï¼š
 
-1. »¬¶¯¸ü¼ÓÁ÷³©Ë³»¬£»
-2. ¿ÉÒÔµã»÷ÊµÏÖµ¥²½µÄÔö¼õ£»
-3. »¬¶¯¹ı³ÌÖĞ´¥ÃşÁ¢¼´Í£Ö¹»¬¶¯£»
-4. »¬¶¯µÄ¾àÀë¸ú»¬¶¯µÄËÙ¶È³ÉÕı±È£¬ºÍ»¬¶¯µÄÊ±¼ä³É·´±È£»
+1. æ»‘åŠ¨æ›´åŠ æµç•…é¡ºæ»‘ï¼›
+2. å¯ä»¥ç‚¹å‡»å®ç°å•æ­¥çš„å¢å‡ï¼›
+3. æ»‘åŠ¨è¿‡ç¨‹ä¸­è§¦æ‘¸ç«‹å³åœæ­¢æ»‘åŠ¨ï¼›
+4. æ»‘åŠ¨çš„è·ç¦»è·Ÿæ»‘åŠ¨çš„é€Ÿåº¦æˆæ­£æ¯”ï¼Œå’Œæ»‘åŠ¨çš„æ—¶é—´æˆåæ¯”ï¼›
 
 
-ÒÔÏÂÄÚÈİÀ´×Ô[Ô­ÏîÄ¿](https://github.com/helloJp/WheelView)£¬±Ï¾¹Á¬´úÂë¶¼copyÁË£¬ÕâĞ©Ï¸½ÚÒ²ÀÁµÃÔÚºõÁË
+ä»¥ä¸‹å†…å®¹æ¥è‡ª[åŸé¡¹ç›®](https://github.com/helloJp/WheelView)ï¼Œæ¯•ç«Ÿè¿ä»£ç éƒ½copyäº†ï¼Œè¿™äº›ç»†èŠ‚ä¹Ÿæ‡’å¾—åœ¨ä¹äº†
 
 # Attributes
 
 
-| attr ÊôĞÔ          | description ÃèÊö |
+| attr å±æ€§          | description æè¿° |
 |:---				 |:---|
-| lineColor  	     | divider line color ·Ö¸îÏßÑÕÉ« |
-| lineHeight  	     | divider line height ·Ö¸îÏß¸ß¶È |
-| itemNumber	 	 | wheelview show item count ´ËwheelViewÏÔÊ¾itemµÄ¸öÊı |
-| noEmpty 			 | if set true select area can't be null(empty),or could be empty ÉèÖÃtrueÔòÑ¡ÖĞ²»ÄÜÎª¿Õ£¬·ñÔò¿ÉÒÔÊÇ¿Õ |
-| normalTextColor 	 | unSelected Text color Î´Ñ¡ÖĞÎÄ±¾ÑÕÉ« |
-| normalTextSize 	 | unSelected Text size Î´Ñ¡ÖĞÎÄ±¾×ÖÌå´óĞ¡ |
-| selectedTextColor | selected Text color Ñ¡ÖĞÎÄ±¾ÑÕÉ« |
-| selectedTextSize 	 | selected Text size Ñ¡ÖĞÎÄ±¾×ÖÌå´óĞ¡ |
-| unitHeight 		 | item unit height Ã¿¸öitemµ¥ÔªµÄ¸ß¶È |
+| lineColor  	     | divider line color åˆ†å‰²çº¿é¢œè‰² |
+| lineHeight  	     | divider line height åˆ†å‰²çº¿é«˜åº¦ |
+| itemNumber	 	 | wheelview show item count æ­¤wheelViewæ˜¾ç¤ºitemçš„ä¸ªæ•° |
+| noEmpty 			 | if set true select area can't be null(empty),or could be empty è®¾ç½®trueåˆ™é€‰ä¸­ä¸èƒ½ä¸ºç©ºï¼Œå¦åˆ™å¯ä»¥æ˜¯ç©º |
+| normalTextColor 	 | unSelected Text color æœªé€‰ä¸­æ–‡æœ¬é¢œè‰² |
+| normalTextSize 	 | unSelected Text size æœªé€‰ä¸­æ–‡æœ¬å­—ä½“å¤§å° |
+| selectedTextColor | selected Text color é€‰ä¸­æ–‡æœ¬é¢œè‰² |
+| selectedTextSize 	 | selected Text size é€‰ä¸­æ–‡æœ¬å­—ä½“å¤§å° |
+| unitHeight 		 | item unit height æ¯ä¸ªitemå•å…ƒçš„é«˜åº¦ |
 
 #Method
 ###1. setData(ArrayList<String> data)
 set WheelView data</br> 
-ÉèÖÃWheelViewµÄÊı¾İ
+è®¾ç½®WheelViewçš„æ•°æ®
 
 ###2. refreshData(ArrayList<String> data) 
 **refresh** WheelView data ,and draw again</br>
-**Ë¢ĞÂ** WheelViewµÄÊı¾İ£¬²¢ÖØ»æ
+**åˆ·æ–°** WheelViewçš„æ•°æ®ï¼Œå¹¶é‡ç»˜
 
 ###3. int getSelected()
 get selected item index</br>
-»ñÈ¡Ñ¡ÖĞÏîµÄindex
+è·å–é€‰ä¸­é¡¹çš„index
 
 ###4. String getSelectedText()
 get selected item text</br>
-»ñÈ¡Ñ¡ÖĞÏîµÄÎÄ±¾ĞÅÏ¢
+è·å–é€‰ä¸­é¡¹çš„æ–‡æœ¬ä¿¡æ¯
 
 ###5. boolean isScrolling
 is WheelView is scrolling</br>
-»ñÈ¡WheelViewÊÇ·ñÔÚ¹ö¶¯ÖĞ
+è·å–WheelViewæ˜¯å¦åœ¨æ»šåŠ¨ä¸­
 
 ###6. boolean isEnable()
 is WheelView is enable</br>
-»ñÈ¡wheelViewÊÇ·ñ¿ÉÓÃ
+è·å–wheelViewæ˜¯å¦å¯ç”¨
 
 ###7. void setEnable(boolean isEnable)  
 set WheelView enable</br>
-ÉèÖÃWheelViewÊÇ·ñ¿ÉÓÃ
+è®¾ç½®WheelViewæ˜¯å¦å¯ç”¨
 
 ###8. void setDefault(int index)
 set **default selected index**</br>
-ÉèÖÃ**Ä¬ÈÏÑ¡ÖĞÏîµÄindex**
+è®¾ç½®**é»˜è®¤é€‰ä¸­é¡¹çš„index**
  
 ###9. int getListSize() 
 get WheelView item count</br>
-»ñÈ¡WheelViewµÄitemÏî¸öÊı
+è·å–WheelViewçš„itemé¡¹ä¸ªæ•°
 
 ###10. String getItemText(int index)
 get the text by index </br>
-»ñÈ¡indexÎ»ÖÃÉÏµÄÎÄ±¾Êı¾İ
+è·å–indexä½ç½®ä¸Šçš„æ–‡æœ¬æ•°æ®
 
 ###11. void setOnSelectListener(OnSelectListener onSelectListener)
 set listener on WheelView that can get info when WheelView is **scrolling** or **stop scroll**.</br>
-¶ÔWheelView**ÉèÖÃ¼àÌı**£¬ÔÚ **»¬¶¯¹ı³Ì** »òÕß **»¬¶¯Í£Ö¹** ·µ»ØÊı¾İĞÅÏ¢¡£
+å¯¹WheelView**è®¾ç½®ç›‘å¬**ï¼Œåœ¨ **æ»‘åŠ¨è¿‡ç¨‹** æˆ–è€… **æ»‘åŠ¨åœæ­¢** è¿”å›æ•°æ®ä¿¡æ¯ã€‚
 
 ###12. void setItemNumber(int itemNumber)
 set the number ofitem show in WheelView</br>
-ÉèÖÃWheelViewÕ¹Ê¾µÄÏîÄ¿ÊıÁ¿
+è®¾ç½®WheelViewå±•ç¤ºçš„é¡¹ç›®æ•°é‡
 
 ###13. int getItemNumber()
 get the number ofitem show in WheelView</br>
-»ñÈ¡WheelViewÕ¹Ê¾µÄÏîÄ¿ÊıÁ¿
+è·å–WheelViewå±•ç¤ºçš„é¡¹ç›®æ•°é‡
