@@ -79,10 +79,14 @@ public class WheelView extends View {
      */
 //    private long goonTime = 200;//ms
     /**
+     * 当前设备的density
+     */
+    private float density=1;
+    /**
      * 快速移动的距离
      */
-//    private static final int GOON_MIN_DISTANCE =30;//dp
-//    private int goOnMinDistance;//px
+    private static final int GOON_MIN_DISTANCE =50;//dp
+    private int goOnMinDistance;//px
     /**
      * 缓慢滚动的时候的速度
      */
@@ -234,9 +238,10 @@ public class WheelView extends View {
 
         attribute.recycle();
 
-//        goOnMinDistance = (int) (context.getResources().getDisplayMetrics().density* GOON_MIN_DISTANCE);
-        slowMoveSpeed = (int) (context.getResources().getDisplayMetrics().density* SLOW_MOVE_SPEED);
-        clickDistance = (int) (context.getResources().getDisplayMetrics().density* CLICK_DISTANCE);
+        density=context.getResources().getDisplayMetrics().density;
+        goOnMinDistance = (int) (density* GOON_MIN_DISTANCE);
+        slowMoveSpeed = (int) (density* SLOW_MOVE_SPEED);
+        clickDistance = (int) (density* CLICK_DISTANCE);
 
         controlHeight = itemNumber * unitHeight;
         lastMeasuredHeight=controlHeight;
@@ -326,10 +331,10 @@ public class WheelView extends View {
         }
         int n=2;
         //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
-        if (time<50 && Math.abs(move)<100){
+        if (time<50 && Math.abs(move)<goOnMinDistance){
             n*=3;
         }
-        int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/time)+unitHeight/3);
+        int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/(int)density/time)+unitHeight/3);
         // TODO: 2016/7/2
         if (goOnMove*move>0){
             goOnLimit+=newGoonMove;
