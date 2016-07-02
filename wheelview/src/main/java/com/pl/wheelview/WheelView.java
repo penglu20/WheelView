@@ -331,7 +331,7 @@ public class WheelView extends View {
         int move = Math.abs(y - downY);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                //防止被其他可滑动View抢占焦点
+                //防止被其他可滑动View抢占焦点，比如嵌套到ListView中使用时
                 getParent().requestDisallowInterceptTouchEvent(true);
                 if (isScrolling){
                     isGoOnMove=false;
@@ -958,7 +958,7 @@ public class WheelView extends View {
         public  synchronized boolean isInView() {
 
 //            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight / 2 + (float)textRect.height() / 2f) < 0)
-            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight  ) < 0)//放宽判断的条件，否则就不能再onDraw的开头执行，而要到中间执行
+            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight  ) < 0)//放宽判断的条件，否则就不能再onDraw的开头执行，而要到textRect测量完成才能执行
                 return false;
             return true;
         }
@@ -984,8 +984,7 @@ public class WheelView extends View {
 
         /**
          * 判断是否在可以选择区域内,用于在没有刚好被选中项的时候判断备选项
-         * 判断规则并不是在正中间，和其上下对称的间距
-         * 而是考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度
+         * 考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度
          * 因此判断为可选区域的标准是需要减去文字的部分的
          * 也就是y+m在正中间和正中间上面一格的范围内，则判断为可选
          *
