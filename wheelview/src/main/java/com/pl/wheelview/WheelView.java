@@ -296,11 +296,12 @@ public class WheelView extends View {
                     slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     isScrolling = false;
                     isGoOnMove=false;
+                    goOnLimit=0;
                     break;
                 case GO_ON_MOVE_INTERRUPTED:
                     //在滑动的过程中被打断，则以当前已经滑动的而距离作为新的起点，继续下一次滑动
                     Log.d(TAG,"GO_ON_MOVE_INTERRUPTED");
-                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
+//                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     for (ItemObject item : itemList) {
                         item.newY(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
                     }
@@ -319,12 +320,23 @@ public class WheelView extends View {
      * @param move 滑动的距离
      */
     private synchronized void goonMove(long time, final long move) {
-        goOnMove= (int) move;
         showTime=0;
         if (time<=0){
             time=1;
         }
-        goOnLimit= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*2/time)+unitHeight/3);
+        int n=2;
+        //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
+        if (time<50&&move<100){
+            n*=3;
+        }
+        int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/time)+unitHeight/3);
+        // TODO: 2016/7/2
+        if (goOnMove*move>0){
+            goOnLimit+=newGoonMove;
+        }else {
+            goOnLimit=newGoonMove;
+        }
+        goOnMove= (int) move;
         isGoOnMove=true;
         //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
         //防止重复滑动同一次Action_Down中滑动的部分
