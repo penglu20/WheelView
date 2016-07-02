@@ -326,7 +326,7 @@ public class WheelView extends View {
         }
         int n=2;
         //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
-        if (time<50&&move<100){
+        if (time<50 && Math.abs(move)<100){
             n*=3;
         }
         int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/time)+unitHeight/3);
@@ -344,6 +344,7 @@ public class WheelView extends View {
             item.newY((int) (unitHeight*Math.floor(item.move/unitHeight)));
         }
         moveHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
+        Log.d(TAG,"goonMove : newGoonMove="+newGoonMove);
         Log.d(TAG,"goonMove : goOnLimit="+goOnLimit);
     }
 
