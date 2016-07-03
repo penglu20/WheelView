@@ -83,3 +83,5 @@ set the number ofitem show in WheelView</br>
 ###13. int getItemNumber()
 get the number ofitem show in WheelView</br>
 获取WheelView展示的项目数量
+
+具体的一些构思和设计思路，参见[这篇文章](http://www.jianshu.com/p/4b3e2373d0e2)
