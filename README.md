@@ -13,6 +13,16 @@
 3. 滑动过程中触摸立即停止滑动；
 4. 滑动的距离跟滑动的速度成正比，和滑动的时间成反比；
 
+#How To Use
+
+add to your build.gradle files:
+
+```
+dependencies {
+    compile 'com.pl:wheelview:0.5'
+}
+```
+
 
 以下内容来自[原项目](https://github.com/helloJp/WheelView)，毕竟连代码都copy了，这些细节也懒得在乎了
 
