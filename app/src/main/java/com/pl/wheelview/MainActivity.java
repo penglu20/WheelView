@@ -1,8 +1,14 @@
 package com.pl.wheelview;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.NumberPicker;
 import android.widget.TextView;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,5 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
         cityPicker = (CityPickerLayout) findViewById(R.id.cityPicker);
         cityPicker.setWheelViewItemNumber(5);
+//        NumberPicker numberPicker= (NumberPicker) findViewById(R.id.numberpicker);
+//        ArrayList<String> list = new ArrayList<String>();
+//        for (int i = 0; i <= 120; i++) {
+//            list.add(i + "ge");
+//        }
+////        numberPicker.setDisplayedValues(list.toArray(new String[120]));
+//        numberPicker.setMinValue(30);
+//        numberPicker.setMaxValue(120);
+
     }
 }

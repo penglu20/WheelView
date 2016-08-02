@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Scroller;
 
 import com.pl.whellview.R;
 
@@ -70,6 +71,8 @@ public class WheelView extends View {
      * 按下的坐标
      */
     private int downY;
+    private int lastY;
+    private int lastMove;
     /**
      * 按下的时间
      */
@@ -85,7 +88,7 @@ public class WheelView extends View {
     /**
      * 快速移动的距离
      */
-    private static final int GOON_MIN_DISTANCE =50;//dp
+    private static final int GOON_MIN_DISTANCE =8;//dp
     private int goOnMinDistance;//px
     /**
      * 缓慢滚动的时候的速度
@@ -195,6 +198,13 @@ public class WheelView extends View {
      */
     private Handler moveHandler;
 
+
+    /**
+     * 所有item的移动距离，用同一个变量记录，减少计算
+     */
+    private int moveDistance;
+
+
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs);
@@ -245,6 +255,9 @@ public class WheelView extends View {
 
         controlHeight = itemNumber * unitHeight;
         lastMeasuredHeight=controlHeight;
+
+        toShowItems=new ItemObject[itemNumber+2];
+
     }
 
     @Override
@@ -271,19 +284,16 @@ public class WheelView extends View {
             super(looper);
         }
 
+        // TODO: 2016/7/30 滑动的时候的动作
         @Override
         public void handleMessage(Message msg) {
+            int lastDistance= goOnDistance;
             switch (msg.what){
                 case GO_ON_MOVE_REFRESH:
                     Log.d(TAG,"GO_ON_MOVE_REFRESH,showTime="+showTime);
-                    if ((getSelected()==0&&goOnMove>0)||(getSelected()==dataList.size()-1&&goOnMove<0)||getSelected()==-1){
-                        //如果滑动到边缘选项，且超过，则加速滑动回来
-                        showTime+=8;
-                    }
                     showTime++;
-                    int lastDistance= goOnDistance;
                     goOnDistance = (int)(goonInterpolator.getInterpolation((float) showTime/(float)SHOWTIME)*goOnLimit);
-                    actionThreadMove(goOnMove > 0 ? goOnDistance : goOnDistance * (-1));
+                    actionThreadMove(goOnMove > 0 ? (goOnDistance-lastDistance) : (goOnDistance -lastDistance)* (-1));
                     if (showTime<SHOWTIME&&isGoOnMove&&(showTime<SHOWTIME/5||Math.abs(lastDistance-goOnDistance)>=slowMoveSpeed)){
                         // Math.abs(lastDistance-goOnDistance)>SLOW_MOVE_SPEED是为了让滚动更加连贯，showTime<SHOWTIME/5是为了防止刚启动时的误判
                         // 否则在slowMove函数中滚动的速度反而可能超过这里的滚动速度，会有卡了一下的感觉
@@ -298,20 +308,25 @@ public class WheelView extends View {
                     Log.d(TAG,"GO_ON_MOVE_END,goOnDistance="+goOnDistance);
                     //对滑动的距离取uniHeight的整数倍，保证滑动停止后不需要大范围调整
 //                    goOnDistance= (int) (Math.ceil(goOnDistance/unitHeight)*unitHeight);
-                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
+                    slowMove(goOnMove > 0 ?(goOnDistance-lastDistance):(goOnDistance-lastDistance)*(-1));
                     isScrolling = false;
                     isGoOnMove=false;
+                    goOnDistance=0;
                     goOnLimit=0;
                     break;
                 case GO_ON_MOVE_INTERRUPTED:
                     //在滑动的过程中被打断，则以当前已经滑动的而距离作为新的起点，继续下一次滑动
                     Log.d(TAG,"GO_ON_MOVE_INTERRUPTED");
 //                    slowMove(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
-                    for (ItemObject item : itemList) {
-                        item.newY(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
-                    }
+//                    for (ItemObject item : itemList) {
+//                        item.newY(goOnMove > 0 ?goOnDistance:goOnDistance*(-1));
+//                    }
+                    moveDistance+=goOnMove > 0 ?(goOnDistance-lastDistance):(goOnDistance-lastDistance)*(-1);
+                    goOnDistance=0;
                     isScrolling = false;
                     isGoOnMove=false;
+                    findItemsToShow();
+                    postInvalidate();
                     break;
             }
         }
@@ -326,16 +341,19 @@ public class WheelView extends View {
      */
     private synchronized void goonMove(long time, final long move) {
         showTime=0;
-        if (time<=0){
-            time=1;
+//        if (time<=0){
+//            time=1;
+//        }
+        double n= 5;
+        if (time<100){
+            n=  n*100/time;
         }
-        int n=2;
-        //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
-        if (time<50 && Math.abs(move)<goOnMinDistance){
-            n*=3;
-        }
-        int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/(int)density/time)+unitHeight/3);
-        // TODO: 2016/7/2
+//        //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
+//        if (time<50 && Math.abs(move)<goOnMinDistance){
+//            n*=3;
+//        }
+//        int newGoonMove= (int) (unitHeight*(MOVE_NUMBER+Math.abs(move)*n/(int)density/time)+unitHeight/3);
+        int newGoonMove= (int) (Math.abs(move)*n);
         if (goOnMove*move>0){
             goOnLimit+=newGoonMove;
         }else {
@@ -345,9 +363,10 @@ public class WheelView extends View {
         isGoOnMove=true;
         //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
         //防止重复滑动同一次Action_Down中滑动的部分
-        for (ItemObject item : itemList) {
-            item.newY((int) (unitHeight*Math.floor(item.move/unitHeight)));
-        }
+//        for (ItemObject item : itemList) {
+//            item.newY((int) (unitHeight*Math.floor(item.move/unitHeight)));
+//        }
+//        moveDistance+=move;
         moveHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
         Log.d(TAG,"goonMove : newGoonMove="+newGoonMove);
         Log.d(TAG,"goonMove : goOnLimit="+goOnLimit);
@@ -358,7 +377,7 @@ public class WheelView extends View {
         if (!isEnable)
             return true;
         int y = (int) event.getY();
-        int move = Math.abs(y - downY);
+        int move = Math.abs(y - lastY);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //防止被其他可滑动View抢占焦点，比如嵌套到ListView中使用时
@@ -373,24 +392,28 @@ public class WheelView extends View {
                 }
                 isScrolling = true;
                 downY = (int) event.getY();
+                lastY = (int) event.getY();
                 downTime = System.currentTimeMillis();
                 break;
             case MotionEvent.ACTION_MOVE:
                 isGoOnMove=false;
                 isScrolling = true;
-                actionMove(y - downY);
+                actionMove(y-lastY);
+                lastMove=y-lastY;
+                lastY=y;
                 onSelectListener();
                 break;
             case MotionEvent.ACTION_UP:
                 long time= System.currentTimeMillis()-downTime;
                 // 判断这段时间移动的距离
-                Log.d(TAG,"time="+time+",move="+move+",y - downY="+(y - downY));
+                Log.d(TAG,"time="+time+",lastMove="+lastMove+",y - downY="+(y - downY));
 //                if (time < goonTime && move > goOnMinDistance) {
-                if ((double)move/(double)time>0.25) {//用比值来判断更精准，有些超快超短的滑动也能识别
-                    goonMove(time,y - downY);
+//                if ((double)move/(double)time>0.25) {//用比值来判断更精准，有些超快超短的滑动也能识别
+                if (Math.abs(lastMove)>goOnMinDistance) {//用比值来判断更精准，有些超快超短的滑动也能识别
+                    goonMove(time,lastMove);
                 } else {
                     //如果移动距离较小，则认为是点击事件，否则认为是小距离滑动
-                    if (move<clickDistance){
+                    if (Math.abs(y-downY)<clickDistance){
                         if (downY<unitHeight*(itemNumber/2)&&downY>0){
                             //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
                             //通过调整move和up的距离，可以调整点击的效果
@@ -399,6 +422,8 @@ public class WheelView extends View {
                         }else if (downY>controlHeight-unitHeight*(itemNumber/2)&&downY<controlHeight){
                             actionMove(-(int) (unitHeight/2));
                             slowMove(-(int) unitHeight/4);
+                        }else {
+                            noEmpty(y-downY);
                         }
                     }else {
                         slowMove(y - downY);
@@ -507,11 +532,10 @@ public class WheelView extends View {
     private synchronized void drawList(Canvas canvas) {
         if (isClearing)
             return;
-        try {
-            for (ItemObject itemObject : itemList) {
+        synchronized (toShowItems) {
+            for (ItemObject itemObject : toShowItems) {
                 itemObject.drawSelf(canvas, getMeasuredWidth());
             }
-        } catch (Exception e) {
         }
     }
 
@@ -543,63 +567,49 @@ public class WheelView extends View {
      * @param moveSymbol 移动的距离，实际上只需要其符号，用于判断当前滑动方向
      */
     private void noEmpty(int moveSymbol) {
+        // TODO: 2016/8/1 在边线上的时候会出现多移动一格的问题 ,可能可以通过findToSHowItem只找itemNumber个来解决
         if (!noEmpty)
             return;
         // 将当前选择项目移动到正中间，防止出现偏差
 
         Log.d(TAG,"noEmpty start");
-        for (ItemObject item : itemList) {
-            if (item.selected()){
-                int move = (int) item.moveToSelected();
-                defaultMove(move);
-                if (onSelectListener != null)
-                    onSelectListener.endSelect(item.id, item.getItemText());
-                Log.d(TAG,"noEmpty selected="+item.id);
-                return;
-            }
-        }
-        // 如果当前没有项目选中，则将根据滑动的方向，将最近的一项设为选中项目，并移动到正中间
-        if (moveSymbol > 0) {
-            for (int i = 0; i < itemList.size(); i++) {
-                if (itemList.get(i).couldSelected()) {
-                    int move = (int) itemList.get(i).moveToSelected();
+        synchronized (toShowItems) {
+            findItemsToShow();
+            for (ItemObject item : toShowItems) {
+                if (item.selected()) {
+                    int move = (int) item.moveToSelected();
                     defaultMove(move);
-                    if (onSelectListener != null) {
-                        onSelectListener.endSelect(itemList.get(i).id, itemList.get(i).getItemText());
-                    }
-                    Log.d(TAG,"noEmpty couldSelected="+itemList.get(i).id);
+                    if (onSelectListener != null)
+                        onSelectListener.endSelect(item.id, item.getItemText());
+                    Log.d(TAG, "noEmpty selected=" + item.id+",movoToSelected= "+move);
                     return;
                 }
             }
-        } else {
-            for (int i = itemList.size() - 1; i >= 0; i--) {
-                if (itemList.get(i).couldSelected()) {
-                    int move = (int) itemList.get(i).moveToSelected();
-                    defaultMove(move);
-                    if (onSelectListener != null) {
-                        onSelectListener.endSelect(itemList.get(i).id, itemList.get(i).getItemText());
+            // 如果当前没有项目选中，则将根据滑动的方向，将最近的一项设为选中项目，并移动到正中间
+            if (moveSymbol > 0) {
+                for (int i = 0; i < toShowItems.length; i++) {
+                    if (toShowItems[i].couldSelected()) {
+                        int move = (int) toShowItems[i].moveToSelected();
+                        defaultMove(move);
+                        if (onSelectListener != null) {
+                            onSelectListener.endSelect(toShowItems[i].id,toShowItems[i].getItemText());
+                        }
+                        Log.d(TAG, "noEmpty couldSelected=" + toShowItems[i].id+",movoToSelected= "+move);
+                        return;
                     }
-                    Log.d(TAG,"noEmpty couldSelected="+itemList.get(i).id);
-                    return;
                 }
-            }
-        }
-        //如果没有项目可被选中，则说明所有项目都在视图外，选择第一个或者最后一个为当前选中项
-        int move = (int) itemList.get(0).moveToSelected();
-        if (move < 0) {
-            Log.d(TAG,"noEmpty moveToSelected="+0);
-//            defaultMove(move);
-            slowMove((int) (move+unitHeight*2/3));
-        } else {
-            Log.d(TAG,"noEmpty moveToSelected="+(itemList.size() - 1));
-//            defaultMove((int) (itemList.get(itemList.size() - 1).moveToSelected()));
-            slowMove((int) (itemList.get(itemList.size() - 1).moveToSelected()-unitHeight*2/3));
-        }
-        for (ItemObject item : itemList) {
-            if (item.selected()) {
-                if (onSelectListener != null)
-                    onSelectListener.endSelect(item.id, item.getItemText());
-                break;
+            } else {
+                for (int i =toShowItems.length - 1; i >= 0; i--) {
+                    if (toShowItems[i].couldSelected()) {
+                        int move = (int)toShowItems[i].moveToSelected();
+                        defaultMove(move);
+                        if (onSelectListener != null) {
+                            onSelectListener.endSelect(toShowItems[i].id, toShowItems[i].getItemText());
+                        }
+                        Log.d(TAG, "noEmpty couldSelected=" + toShowItems[i].id+",movoToSelected= "+move);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -611,9 +621,9 @@ public class WheelView extends View {
      * @param move 移动的距离
      */
     private void actionMove(int move) {
-        for (ItemObject item : itemList) {
-            item.move(move);
-        }
+        moveDistance-=move;
+        Log.d(TAG,"move="+move+",moveDistance="+moveDistance);
+        findItemsToShow();
         invalidate();
     }
 
@@ -623,12 +633,46 @@ public class WheelView extends View {
      * @param move 移动的距离
      */
     private void actionThreadMove(int move) {
-        for (ItemObject item : itemList) {
-            item.move(move);
-        }
-//        handler.sendEmptyMessage(REFRESH_VIEW);
-
+        moveDistance-=move;
+        findItemsToShow();
         postInvalidate();
+    }
+
+    /**
+     * 找到将会显示的几个item
+     */
+    private ItemObject[] toShowItems;
+    private void findItemsToShow(){
+        if (moveDistance>itemList.size()){
+            moveDistance=moveDistance%((int)unitHeight*itemList.size());
+        }else if (moveDistance<0){
+            moveDistance=moveDistance%((int)unitHeight*itemList.size())+(int)unitHeight*itemList.size();
+        }
+        int move=moveDistance;
+        // TODO: 2016/8/2 java.lang.IndexOutOfBoundsException: Invalid index 2, size is 1 
+        ItemObject center= itemList.get(itemNumber/2);
+
+        int centerY=center.y+move;
+        int centerNumber=(int) (Math.abs(centerY/unitHeight));
+        int restMove= (int) (move-unitHeight*centerNumber);
+        int takeNumberStart=centerNumber-(itemNumber/2+1);
+        synchronized (toShowItems) {
+            for (int i = 0; i < toShowItems.length; i++) {
+                int takeNumber = takeNumberStart + i;
+                int realNumber = takeNumber;
+                if (takeNumber < 0) {
+                    realNumber = itemList.size() + takeNumber;
+                } else if (takeNumber >= itemList.size()) {
+                    realNumber = takeNumber - itemList.size();
+                }
+                toShowItems[i] = itemList.get(realNumber);
+                toShowItems[i].move = (int) (unitHeight * (i - realNumber - itemNumber / 2)) - restMove;
+//            Log.e(TAG," toShowItems["+i+"] = "+ toShowItems[i].id);
+            }
+//        Log.e(TAG,"---------------------------------------------------------------------------------------------------------");
+
+        }
+
     }
 
     /**
@@ -648,31 +692,33 @@ public class WheelView extends View {
             public void run() {
                 Log.d(TAG,"slowMove run start");
                 int newMove = 0;
+                findItemsToShow();
                 //根据当前滑动方向，选择选中项来移到中心显示
                 int selected=getSelected();
                 if (selected!=-1){
                     newMove= (int) itemList.get(selected).moveToSelected();
+                    Log.e(TAG,"getSelected:"+selected+"  , newMove="+newMove);
                 }else {
-                    if (move > 0) {
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (itemList.get(i).couldSelected()) {
-                                newMove = (int) itemList.get(i).moveToSelected();
-                                break;
+                    synchronized (toShowItems){
+                        if (move > 0) {
+                            for (int i = 0; i < toShowItems.length; i++) {
+                                if (toShowItems[i].couldSelected()) {
+                                    newMove = (int) toShowItems[i].moveToSelected();
+                                    Log.e(TAG, "move > 0 couldSelected:" + toShowItems[i].id);
+                                    break;
+                                }
                             }
-                        }
-                    } else {
-                        for (int i = itemList.size() - 1; i >= 0; i--) {
-                            if (itemList.get(i).couldSelected()) {
-                                newMove = (int) itemList.get(i).moveToSelected();
-                                break;
+                        } else {
+                            for (int i = toShowItems.length - 1; i >= 0; i--) {
+                                if (toShowItems[i].couldSelected()) {
+                                    newMove = (int) toShowItems[i].moveToSelected();
+                                    Log.e(TAG, "move < 0 couldSelected:" + toShowItems[i].id);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-                for (ItemObject item : itemList) {
-                    item.newY(move + 0);
-                }
-
                 // 判断正负
                 int m = newMove > 0 ? newMove : newMove * (-1);
                 int symbol = newMove > 0 ? 1 : (-1);
@@ -681,10 +727,8 @@ public class WheelView extends View {
                 while (true && m!=0 ) {
                     m = m - speed;
                     if (m < 0) {
-                        for (ItemObject item : itemList) {
-                            item.newY(m * symbol);
-                        }
-//                        handler.sendEmptyMessage(REFRESH_VIEW);
+                        moveDistance-=m * symbol;
+                        findItemsToShow();
                         postInvalidate();
                         try {
                             Thread.sleep(10);
@@ -693,10 +737,8 @@ public class WheelView extends View {
                         }
                         break;
                     }
-                    for (ItemObject item : itemList) {
-                        item.newY(speed * symbol);
-                    }
-//                    handler.sendEmptyMessage(REFRESH_VIEW);
+                    moveDistance-=speed * symbol;
+                    findItemsToShow();
                     postInvalidate();
                     try {
                         Thread.sleep(10);
@@ -717,10 +759,8 @@ public class WheelView extends View {
      * @param move 移动的距离
      */
     private void defaultMove(int move) {
-        for (ItemObject item : itemList) {
-            item.newY(move);
-        }
-//        handler.sendEmptyMessage(REFRESH_VIEW);
+        moveDistance-=move;
+        findItemsToShow();
         postInvalidate();
     }
 
@@ -730,9 +770,11 @@ public class WheelView extends View {
     private void onSelectListener() {
         if (onSelectListener == null)
             return;
-        for (ItemObject item : itemList) {
-            if (item.couldSelected()) {
-                onSelectListener.selecting(item.id, item.getItemText());
+        {
+            for (ItemObject item : toShowItems) {
+                if (item.couldSelected()) {
+                    onSelectListener.selecting(item.id, item.getItemText());
+                }
             }
         }
     }
@@ -754,6 +796,7 @@ public class WheelView extends View {
      */
     public void refreshData(ArrayList<String> data) {
         setData(data);
+        findItemsToShow();
         invalidate();
     }
 
@@ -763,11 +806,13 @@ public class WheelView extends View {
      * @return
      */
     public int getSelected() {
-        for (ItemObject item : itemList) {
-            if (item.selected())
-                return item.id;
+        synchronized (toShowItems) {
+            for (ItemObject item : toShowItems) {
+                if (item.selected())
+                    return item.id;
+            }
+            return -1;
         }
-        return -1;
     }
 
     /**
@@ -776,11 +821,13 @@ public class WheelView extends View {
      * @return
      */
     public String getSelectedText() {
-        for (ItemObject item : itemList) {
-            if (item.selected())
-                return item.getItemText();
+        synchronized (toShowItems) {
+            for (ItemObject item : toShowItems) {
+                if (item.selected())
+                    return item.getItemText();
+            }
+            return "";
         }
-        return "";
     }
 
     /**
@@ -819,6 +866,7 @@ public class WheelView extends View {
         defaultIndex=index;
         if (index > itemList.size() - 1)
             return;
+        findItemsToShow();
         float move = itemList.get(index).moveToSelected();
         defaultMove((int) move);
     }
@@ -854,22 +902,6 @@ public class WheelView extends View {
     public void setOnSelectListener(OnSelectListener onSelectListener) {
         this.onSelectListener = onSelectListener;
     }
-
-//    @SuppressLint("HandlerLeak")
-//    private Handler handler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//            switch (msg.what) {
-//                case REFRESH_VIEW:
-//                    invalidate();
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//
-//    };
 
     /**
      * 获取当前展示的项目数量
