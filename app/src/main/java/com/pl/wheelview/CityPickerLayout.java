@@ -51,7 +51,7 @@ public class CityPickerLayout extends LinearLayout {
 
         String defaultProvince = mProvinceList.get(0);
         mCityPicker.setData(mAreaDataUtil.getCityByProvince(defaultProvince));
-        mCityPicker.setDefault(1);
+        mCityPicker.setDefault(0);
 
         mProvincePicker.setOnSelectListener(new WheelView.OnSelectListener() {
             @Override

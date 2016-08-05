@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -14,7 +15,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/from_hour"
-
+            app:isCyclic="false"
             style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
@@ -30,7 +31,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/from_minute"
-
+            app:isCyclic="true"
             style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
 
@@ -46,6 +47,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/to_hour"
+            app:isCyclic="false"
             style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
@@ -62,6 +64,7 @@
 
         <com.pl.wheelview.WheelView
             android:id="@+id/to_minute"
+            app:isCyclic="true"
             style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
     </LinearLayout>

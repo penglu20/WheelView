@@ -9,6 +9,7 @@
         <attr name="normalTextSize" format="dimension" />
         <attr name="selectedTextColor" format="color" />
         <attr name="selectedTextSize" format="dimension" />
+        <attr name="isCyclic" format="boolean" />
 
         <attr name="lineColor" format="color" />
         <attr name="lineHeight" format="dimension" />
