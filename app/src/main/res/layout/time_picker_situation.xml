@@ -16,6 +16,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/from_hour"
             app:isCyclic="false"
+            app:itemNumber="1"
             style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
@@ -32,6 +33,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/from_minute"
             app:isCyclic="true"
+            app:itemNumber="3"
             style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
 
@@ -48,6 +50,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/to_hour"
             app:isCyclic="false"
+            app:itemNumber="5"
             style="@style/wheelViewStyle_time"
             android:layout_marginLeft="@dimen/margin_double" />
 
@@ -65,6 +68,7 @@
         <com.pl.wheelview.WheelView
             android:id="@+id/to_minute"
             app:isCyclic="true"
+            app:itemNumber="7"
             style="@style/wheelViewStyle_time"
             android:layout_marginRight="@dimen/margin_double" />
     </LinearLayout>

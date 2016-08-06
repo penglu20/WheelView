@@ -16,9 +16,12 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Scroller;
 
 import com.pl.whellview.R;
 
@@ -71,7 +74,6 @@ public class WheelView extends View {
      */
     private int downY;
     private int lastY;
-    private int lastMove;
     /**
      * 按下的时间
      */
@@ -85,11 +87,6 @@ public class WheelView extends View {
      */
     private float density=1;
     /**
-     * 快速移动的距离
-     */
-    private static final int GOON_MIN_DISTANCE =5;//dp
-    private int goOnMinDistance;//px
-    /**
      * 缓慢滚动的时候的速度
      */
     private static final int SLOW_MOVE_SPEED = 1; //dp
@@ -99,6 +96,7 @@ public class WheelView extends View {
      */
     private static final int CLICK_DISTANCE = 3; //dp
     private int clickDistance=CLICK_DISTANCE;
+    private int clickTimeout=100;
     /**
      * 画线画笔
      */
@@ -207,6 +205,12 @@ public class WheelView extends View {
     private int moveDistance;
 
 
+    private VelocityTracker mVelocityTracker;
+
+    private int mMaximumFlingVelocity;
+    private int mMinimumFlingVelocity;
+
+
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs);
@@ -252,14 +256,19 @@ public class WheelView extends View {
         attribute.recycle();
 
         density=context.getResources().getDisplayMetrics().density;
-        goOnMinDistance = (int) (density* GOON_MIN_DISTANCE);
         slowMoveSpeed = (int) (density* SLOW_MOVE_SPEED);
-        clickDistance = (int) (density* CLICK_DISTANCE);
+//        clickDistance = (int) (density* CLICK_DISTANCE);
 
         controlHeight = itemNumber * unitHeight;
-        lastMeasuredHeight=controlHeight;
 
         toShowItems=new ItemObject[itemNumber+2];
+
+
+        ViewConfiguration configuration = ViewConfiguration.get(context);
+        clickDistance = configuration.getScaledTouchSlop();
+        clickTimeout = configuration.getTapTimeout();
+        mMinimumFlingVelocity = configuration.getScaledMinimumFlingVelocity();
+        mMaximumFlingVelocity = configuration.getScaledMaximumFlingVelocity();
 
     }
 
@@ -340,20 +349,12 @@ public class WheelView extends View {
 
     /**
      * 继续快速移动一段距离，连续滚动动画，滚动速度递减，速度减到SLOW_MOVE_SPEED之下后调用slowMove
-     * @param time 滑动的时间间隔
+     * @param velocity 滑动的初始速度
      * @param move 滑动的距离
      */
-    private synchronized void goonMove(long time, final long move) {
+    private synchronized void goonMove(int velocity, final long move) {
         showTime=0;
-        if (time<=0){
-            time=30;
-        }
-        double n= 5;
-        if (time<100){
-            n=  n*100/time;
-        }
-//        //当时间特别短的时候<50ms，move也不会长，但是用户这时候可能希望滑动的更快一些，此时提高倍数来达到此目的
-        int newGoonMove= (int) (Math.abs(move)*n);
+        int newGoonMove= (int) (Math.abs(velocity/10));
         if (goOnMove*move>0){
             goOnLimit+=newGoonMove;
         }else {
@@ -372,6 +373,11 @@ public class WheelView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         if (!isEnable)
             return true;
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+        mVelocityTracker.addMovement(event);
+
         int y = (int) event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -394,21 +400,23 @@ public class WheelView extends View {
                 isGoOnMove=false;
                 isScrolling = true;
                 actionMove(y-lastY);
-                lastMove=y-lastY;
                 lastY=y;
                 onSelectListener();
                 break;
             case MotionEvent.ACTION_UP:
                 long time= System.currentTimeMillis()-downTime;
                 // 判断这段时间移动的距离
-                Log.d(TAG,"time="+time+",lastMove="+lastMove+",y - downY="+(y - downY));
-//                if (time < goonTime && move > goOnMinDistance) {
-//                if ((double)move/(double)time>0.25) {//用比值来判断更精准，有些超快超短的滑动也能识别
-                if (Math.abs(lastMove)>goOnMinDistance) {//用比值来判断更精准，有些超快超短的滑动也能识别
-                    goonMove(time,lastMove);
+                Log.d(TAG,"time="+time+",y - downY="+(y - downY));
+
+                //用速度来判断是非快速滑动
+                VelocityTracker velocityTracker = mVelocityTracker;
+                velocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
+                int initialVelocity = (int) velocityTracker.getYVelocity();
+                if (Math.abs(initialVelocity)>mMinimumFlingVelocity) {
+                    goonMove(initialVelocity,y - downY);
                 } else {
                     //如果移动距离较小，则认为是点击事件，否则认为是小距离滑动
-                    if (Math.abs(y-downY)<=clickDistance){
+                    if (Math.abs(y-downY)<=clickDistance&&time <= clickTimeout){
                         if (downY<unitHeight*(itemNumber/2)&&downY>0){
                             //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
                             //通过调整move和up的距离，可以调整点击的效果
@@ -425,6 +433,9 @@ public class WheelView extends View {
                     }
                     isScrolling = false;
                 }
+
+                mVelocityTracker.recycle();
+                mVelocityTracker = null;
                 break;
             default:
                 break;

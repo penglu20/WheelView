@@ -9,7 +9,7 @@
     <dimen name="text_size_title">30sp</dimen>
 
     <dimen name="height_small_32">32dp</dimen>
-    <dimen name="height_small">40dp</dimen>
+    <dimen name="height_small">30dp</dimen>
 
     <dimen name="margin_double">16dp</dimen>
     <dimen name="margin_triple">24dp</dimen>

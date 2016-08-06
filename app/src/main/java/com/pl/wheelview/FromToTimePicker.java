@@ -162,22 +162,22 @@ public class FromToTimePicker extends LinearLayout {
         mToHour=TimeUtil.getHourFromTime(to);
         mToMinute=TimeUtil.getMinuteFromTime(to);
 
-//        mWheelFromHour.setItemNumber(3);
+//        mWheelFromHour.setItemNumber(5);
 //        mWheelFromMinute.setItemNumber(5);
 //        mWheelToHour.setItemNumber(7);
 //        mWheelToMinute.setItemNumber(9);
 
 
-        mWheelFromHour.setCyclic(false);
-        mWheelFromMinute.setCyclic(true);
-        mWheelToHour.setCyclic(false);
-        mWheelToMinute.setCyclic(true);
+
+//        mWheelFromHour.setCyclic(false);
+//        mWheelFromMinute.setCyclic(false);
+//        mWheelToHour.setCyclic(false);
+//        mWheelToMinute.setCyclic(false);
 
         mWheelFromHour.setDefault(mFromHour);
         mWheelFromMinute.setDefault(mFromMinute);
         mWheelToHour.setDefault(mToHour);
         mWheelToMinute.setDefault(mToMinute);
-
 
 
         WeekDay[] allWeekDays=WeekDay.values();
