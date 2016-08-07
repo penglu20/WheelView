@@ -99,9 +99,9 @@ get the number ofitem show in WheelView</br>
 set if scroll cyclic
 设置是否循环滚动
 
- ###15. boolean isCyclic()
- get if scroll cyclic
- 获取是否循环滚动
+###15. boolean isCyclic()
+get if scroll cyclic
+获取是否循环滚动
 
 
 
