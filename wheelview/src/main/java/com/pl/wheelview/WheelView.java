@@ -14,14 +14,13 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
+//import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.Scroller;
 
 import com.pl.whellview.R;
 
@@ -70,18 +69,17 @@ public class WheelView extends View {
      */
     private ArrayList<String> dataList = new ArrayList<>();
     /**
-     * 按下的坐标
+     * 按下的Y坐标
      */
     private int downY;
+    /**
+     * 上一次MotionEvent的Y坐标
+     */
     private int lastY;
     /**
      * 按下的时间
      */
     private long downTime = 0;//ms
-    /**
-     * 快速移动的时间
-     */
-//    private long goonTime = 200;//ms
     /**
      * 当前设备的density
      */
@@ -94,9 +92,24 @@ public class WheelView extends View {
     /**
      * 判断为点击的移动距离
      */
-    private static final int CLICK_DISTANCE = 3; //dp
+    private static final int CLICK_DISTANCE = 2; //dp
     private int clickDistance=CLICK_DISTANCE;
-    private int clickTimeout=100;
+    /**
+     * 判断为点击的时间间隔
+     */
+    private int clickTimeout=100;//ms
+    /**
+     * 滚动的最大速度
+     */
+    private int mMaximumFlingVelocity;
+    /**
+     * 滚动的最小速度
+     */
+    private int mMinimumFlingVelocity;
+    /**
+     * 滑动速度检测器
+     */
+    private VelocityTracker mVelocityTracker;
     /**
      * 画线画笔
      */
@@ -150,7 +163,13 @@ public class WheelView extends View {
      */
     private boolean noEmpty = true;
 
+    /**
+     * 设定的是否循环滚动
+     */
     private boolean isCyclic =true;
+    /**
+     * 真实使用的是否循环滚动——当item个数少于展示个数时，强制不使用循环滚动
+     */
     private boolean _isCyclic =true;
 
     /**
@@ -197,18 +216,10 @@ public class WheelView extends View {
      * 用于计算滑动动画位置的Handler，保证同一时刻只有一个滑动
      */
     private Handler moveHandler;
-
-
     /**
      * 所有item的移动距离，用同一个变量记录，减少计算
      */
     private int moveDistance;
-
-
-    private VelocityTracker mVelocityTracker;
-
-    private int mMaximumFlingVelocity;
-    private int mMinimumFlingVelocity;
 
 
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
@@ -257,7 +268,7 @@ public class WheelView extends View {
 
         density=context.getResources().getDisplayMetrics().density;
         slowMoveSpeed = (int) (density* SLOW_MOVE_SPEED);
-//        clickDistance = (int) (density* CLICK_DISTANCE);
+        clickDistance = (int) (density* CLICK_DISTANCE);
 
         controlHeight = itemNumber * unitHeight;
 
@@ -265,7 +276,7 @@ public class WheelView extends View {
 
 
         ViewConfiguration configuration = ViewConfiguration.get(context);
-        clickDistance = configuration.getScaledTouchSlop();
+//        clickDistance = configuration.getScaledTouchSlop();
         clickTimeout = configuration.getTapTimeout();
         mMinimumFlingVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumFlingVelocity = configuration.getScaledMaximumFlingVelocity();
@@ -309,7 +320,7 @@ public class WheelView extends View {
             int lastDistance= goOnDistance;
             switch (msg.what){
                 case GO_ON_MOVE_REFRESH:
-                    Log.d(TAG,"GO_ON_MOVE_REFRESH,showTime="+showTime);
+//                    Log.d(TAG,"GO_ON_MOVE_REFRESH,showTime="+showTime);
                     showTime++;
                     goOnDistance = (int)(goonInterpolator.getInterpolation((float) showTime/(float)SHOWTIME)*goOnLimit);
                     actionThreadMove(goOnMove > 0 ? (goOnDistance-lastDistance) : (goOnDistance -lastDistance)* (-1));
@@ -324,8 +335,8 @@ public class WheelView extends View {
                     }
                     break;
                 case GO_ON_MOVE_END:
-                    Log.d(TAG,"GO_ON_MOVE_END,goOnDistance="+goOnDistance);
-                    slowMove(goOnMove > 0 ?(goOnDistance-lastDistance):(goOnDistance-lastDistance)*(-1));
+//                    Log.d(TAG,"GO_ON_MOVE_END,goOnDistance="+goOnDistance);
+                    slowMove(goOnMove > 0 ?slowMoveSpeed:((slowMoveSpeed)*(-1)));
                     isScrolling = false;
                     isGoOnMove=false;
                     goOnDistance=0;
@@ -365,7 +376,7 @@ public class WheelView extends View {
         //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
         //防止重复滑动同一次Action_Down中滑动的部分
         moveHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
-        Log.d(TAG,"goonMove : newGoonMove="+newGoonMove);
+//        Log.d(TAG,"goonMove : newGoonMove="+newGoonMove);
 //        Log.d(TAG,"goonMove : goOnLimit="+goOnLimit);
     }
 
@@ -406,7 +417,7 @@ public class WheelView extends View {
             case MotionEvent.ACTION_UP:
                 long time= System.currentTimeMillis()-downTime;
                 // 判断这段时间移动的距离
-                Log.d(TAG,"time="+time+",y - downY="+(y - downY));
+//                Log.d(TAG,"time="+time+",y - downY="+(y - downY));
 
                 //用速度来判断是非快速滑动
                 VelocityTracker velocityTracker = mVelocityTracker;
@@ -420,11 +431,11 @@ public class WheelView extends View {
                         if (downY<unitHeight*(itemNumber/2)&&downY>0){
                             //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
                             //通过调整move和up的距离，可以调整点击的效果
-                            actionMove((int) (unitHeight/2));
-                            slowMove((int) unitHeight/4);
+                            actionMove((int) (unitHeight/3));
+                            slowMove((int) unitHeight/3);
                         }else if (downY>controlHeight-unitHeight*(itemNumber/2)&&downY<controlHeight){
-                            actionMove(-(int) (unitHeight/2));
-                            slowMove(-(int) unitHeight/4);
+                            actionMove(-(int) (unitHeight/3));
+                            slowMove(-(int) unitHeight/3);
                         }else {
                             noEmpty(y-downY);
                         }
@@ -660,7 +671,6 @@ public class WheelView extends View {
             int move = moveDistance;
             ItemObject center = itemList.get(itemNumber / 2);
 
-            // TODO: 2016/8/5 向上错位一个位置
             int centerY = center.y + move;
             int centerNumber = (int) (Math.abs(centerY / unitHeight));
             int restMove = (int) (centerY - unitHeight * centerNumber);
@@ -969,10 +979,17 @@ public class WheelView extends View {
         requestLayout();
     }
 
+    /**
+     * 获取是否循环滚动
+     */
     public boolean isCyclic() {
         return isCyclic;
     }
 
+    /**
+     * 设置是否循环滚动
+     * @param cyclic
+     */
     public void setCyclic(boolean cyclic) {
         isCyclic=cyclic;
         _setIsCyclic(cyclic);

@@ -19,7 +19,7 @@ add to your build.gradle files:
 
 ```
 dependencies {
-    compile 'com.pl:wheelview:0.5'
+    compile 'com.pl:wheelview:0.6'
 }
 ```
 
@@ -40,6 +40,7 @@ dependencies {
 | selectedTextColor | selected Text color 选中文本颜色 |
 | selectedTextSize 	 | selected Text size 选中文本字体大小 |
 | unitHeight 		 | item unit height 每个item单元的高度 |
+| isCyclic 		     | if scroll cyclic 是否循环滚动 |
 
 #Method
 ###1. setData(ArrayList<String> data)
@@ -93,5 +94,15 @@ set the number ofitem show in WheelView</br>
 ###13. int getItemNumber()
 get the number ofitem show in WheelView</br>
 获取WheelView展示的项目数量
+
+###14. void setCyclic(boolean cyclic)
+set if scroll cyclic
+设置是否循环滚动
+
+ ###15. boolean isCyclic()
+ get if scroll cyclic
+ 获取是否循环滚动
+
+
 
 具体的一些构思和设计思路，参见[这篇文章](http://www.jianshu.com/p/4b3e2373d0e2)
