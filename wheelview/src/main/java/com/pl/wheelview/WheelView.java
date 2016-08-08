@@ -428,12 +428,12 @@ public class WheelView extends View {
                 } else {
                     //如果移动距离较小，则认为是点击事件，否则认为是小距离滑动
                     if (Math.abs(y-downY)<=clickDistance&&time <= clickTimeout){
-                        if (downY<unitHeight*(itemNumber/2)&&downY>0){
+                        if (downY<unitHeight*(itemNumber/2)+unitHeight*1/3&&downY>0){
                             //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
                             //通过调整move和up的距离，可以调整点击的效果
                             actionMove((int) (unitHeight/3));
                             slowMove((int) unitHeight/3);
-                        }else if (downY>controlHeight-unitHeight*(itemNumber/2)&&downY<controlHeight){
+                        }else if (downY>controlHeight-unitHeight*(itemNumber/2)-unitHeight*1/3&&downY<controlHeight){
                             actionMove(-(int) (unitHeight/3));
                             slowMove(-(int) unitHeight/3);
                         }else {
@@ -674,7 +674,7 @@ public class WheelView extends View {
             int centerY = center.y + move;
             int centerNumber = (int) (Math.abs(centerY / unitHeight));
             int restMove = (int) (centerY - unitHeight * centerNumber);
-            int takeNumberStart = centerNumber - (itemNumber / 2 + 1);
+            int takeNumberStart = centerNumber - (itemNumber / 2 );
             synchronized (toShowItems) {
                 for (int i = 0; i < toShowItems.length; i++) {
                     int takeNumber = takeNumberStart + i;
@@ -923,6 +923,7 @@ public class WheelView extends View {
         defaultIndex=index;
         if (index > itemList.size() - 1)
             return;
+        moveDistance=0;
         findItemsToShow();
         float move = itemList.get(index).moveToSelected();
         defaultMove((int) move);

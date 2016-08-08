@@ -12,6 +12,7 @@
 2. 可以点击实现单步的增减；
 3. 滑动过程中触摸立即停止滑动；
 4. 滑动的距离跟滑动的速度成正比，和滑动的时间成反比；
+5. 实现循环滚动，并可以切换
 
 #How To Use
 
@@ -19,7 +20,7 @@ add to your build.gradle files:
 
 ```
 dependencies {
-    compile 'com.pl:wheelview:0.6'
+    compile 'com.pl:wheelview:0.6.1'
 }
 ```
 
