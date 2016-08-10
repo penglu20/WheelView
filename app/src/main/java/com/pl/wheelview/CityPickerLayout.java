@@ -2,6 +2,7 @@ package com.pl.wheelview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
@@ -84,6 +85,7 @@ public class CityPickerLayout extends LinearLayout {
 
             @Override
             public void selecting(int id, String text) {
+                Log.e("mProvincePicker selecting","id="+id+", text="+text);
             }
         });
 
@@ -107,7 +109,7 @@ public class CityPickerLayout extends LinearLayout {
 
             @Override
             public void selecting(int id, String text) {
-
+                Log.e("mCityPicker selecting","id="+id+", text="+text);
             }
         });
     }

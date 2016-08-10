@@ -221,6 +221,8 @@ public class WheelView extends View {
      */
     private int moveDistance;
 
+    private Handler callbackHandler;
+
 
     public WheelView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -281,6 +283,7 @@ public class WheelView extends View {
         mMinimumFlingVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumFlingVelocity = configuration.getScaledMaximumFlingVelocity();
 
+        callbackHandler=new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -412,7 +415,6 @@ public class WheelView extends View {
                 isScrolling = true;
                 actionMove(y-lastY);
                 lastY=y;
-                onSelectListener();
                 break;
             case MotionEvent.ACTION_UP:
                 long time= System.currentTimeMillis()-downTime;
@@ -597,8 +599,7 @@ public class WheelView extends View {
                 if (item!=null)
                     if (item.selected()) {
                         int move = (int) item.moveToSelected();
-                        if (onSelectListener != null)
-                            onSelectListener.endSelect(item.id, item.getItemText());
+                        onEndSelecting(item);
                         defaultMove(move);
 //                        Log.d(TAG, "noEmpty selected=" + item.id+",movoToSelected= "+move);
                         return;
@@ -609,9 +610,7 @@ public class WheelView extends View {
                 for (int i = 0; i < toShowItems.length; i++) {
                     if (toShowItems[i]!=null&&toShowItems[i].couldSelected()) {
                         int move = (int) toShowItems[i].moveToSelected();
-                        if (onSelectListener != null) {
-                            onSelectListener.endSelect(toShowItems[i].id,toShowItems[i].getItemText());
-                        }
+                        onEndSelecting(toShowItems[i]);
                         defaultMove(move);
 //                        Log.d(TAG, "noEmpty couldSelected=" + toShowItems[i].id+",movoToSelected= "+move);
                         return;
@@ -621,15 +620,24 @@ public class WheelView extends View {
                 for (int i =toShowItems.length - 1; i >= 0; i--) {
                     if (toShowItems[i]!=null&&toShowItems[i].couldSelected()) {
                         int move = (int)toShowItems[i].moveToSelected();
-                        if (onSelectListener != null) {
-                            onSelectListener.endSelect(toShowItems[i].id, toShowItems[i].getItemText());
-                        }
+                        onEndSelecting(toShowItems[i]);
                         defaultMove(move);
 //                        Log.d(TAG, "noEmpty couldSelected=" + toShowItems[i].id+",movoToSelected= "+move);
                         return;
                     }
                 }
             }
+        }
+    }
+
+    private void onEndSelecting(final ItemObject toShowItem) {
+        if (onSelectListener != null) {
+            callbackHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    onSelectListener.endSelect(toShowItem.id, toShowItem.getItemText());
+                }
+            });
         }
     }
 
@@ -730,6 +738,15 @@ public class WheelView extends View {
 
         }
 
+        if (onSelectListener!=null&&toShowItems[itemNumber/2]!=null){
+            callbackHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    onSelectListener.selecting(toShowItems[itemNumber/2].id,toShowItems[itemNumber/2].getItemText());
+                }
+            });
+        }
+
     }
 
     /**
@@ -819,21 +836,6 @@ public class WheelView extends View {
         moveDistance-=move;
         findItemsToShow();
         postInvalidate();
-    }
-
-    /**
-     * 滑动监听
-     */
-    private void onSelectListener() {
-        if (onSelectListener == null)
-            return;
-        {
-            for (ItemObject item : toShowItems) {
-                if (item!=null&&item.couldSelected()) {
-                    onSelectListener.selecting(item.id, item.getItemText());
-                }
-            }
-        }
     }
 
     /**

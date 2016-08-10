@@ -35,6 +35,7 @@ public class FromToTimePicker extends LinearLayout {
 
         @Override
         public void selecting(int id, String text) {
+            mFromHour = id;
         }
     };
 
@@ -46,6 +47,7 @@ public class FromToTimePicker extends LinearLayout {
 
         @Override
         public void selecting(int id, String text) {
+            mFromMinute  = id;
         }
     };
 
@@ -58,7 +60,8 @@ public class FromToTimePicker extends LinearLayout {
         }
 
         @Override
-        public void selecting(int day, String text) {
+        public void selecting(int hour, String text) {
+            mToHour = hour;
         }
     };
     private WheelView.OnSelectListener mToMinuteListener = new WheelView.OnSelectListener() {
@@ -68,7 +71,8 @@ public class FromToTimePicker extends LinearLayout {
         }
 
         @Override
-        public void selecting(int day, String text) {
+        public void selecting(int minute, String text) {
+            mToMinute = minute;
         }
     };
 
