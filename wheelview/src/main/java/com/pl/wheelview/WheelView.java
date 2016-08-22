@@ -926,6 +926,9 @@ public class WheelView extends View {
         if (index > itemList.size() - 1)
             return;
         moveDistance=0;
+        for (ItemObject item :itemList){
+            item.move=0;
+        }
         findItemsToShow();
         float move = itemList.get(index).moveToSelected();
         defaultMove((int) move);
