@@ -668,37 +668,39 @@ public class WheelView extends View {
     /**
      * 找到将会显示的几个item
      */
-    private ItemObject[] toShowItems;
+    private ItemObject[] toShowItems;//其长度等于itemNumber+2
     private void findItemsToShow(){
         if (_isCyclic) {
+            //循环模式下，将moveDistance限定在一定的范围内循环变化，同时要保证滚动的连续性
             if (moveDistance > unitHeight * itemList.size()) {
                 moveDistance = moveDistance % ((int) unitHeight * itemList.size());
             } else if (moveDistance < 0) {
                 moveDistance = moveDistance % ((int) unitHeight * itemList.size()) + (int) unitHeight * itemList.size();
             }
             int move = moveDistance;
-            ItemObject center = itemList.get(itemNumber / 2);
+            ItemObject first = itemList.get(0);
+            int firstY = first.y + move;
+            int firstNumber = (int) (Math.abs(firstY / unitHeight));//滚轮中显示的第一个item的index
+            int restMove = (int) (firstY - unitHeight * firstNumber);//用以保证滚动的连续性
+            int takeNumberStart = firstNumber;
 
-            int centerY = center.y + move;
-            int centerNumber = (int) (Math.abs(centerY / unitHeight));
-            int restMove = (int) (centerY - unitHeight * centerNumber);
-            int takeNumberStart = centerNumber - (itemNumber / 2 );
             synchronized (toShowItems) {
                 for (int i = 0; i < toShowItems.length; i++) {
                     int takeNumber = takeNumberStart + i;
                     int realNumber = takeNumber;
                     if (takeNumber < 0) {
-                        realNumber = itemList.size() + takeNumber;
+                        realNumber = itemList.size() + takeNumber;//调整循环滚动显示的index
                     } else if (takeNumber >= itemList.size()) {
-                        realNumber = takeNumber - itemList.size();
+                        realNumber = takeNumber - itemList.size();//调整循环滚动显示的index
                     }
                     toShowItems[i] = itemList.get(realNumber);
-                    toShowItems[i].move = (int) (unitHeight * ((i - realNumber)%itemList.size())) - restMove;
+                    toShowItems[i].move((int) (unitHeight * ((i - realNumber)%itemList.size())) - restMove);//设置滚动的相对位置
 //            Log.e(TAG," toShowItems["+i+"] = "+ toShowItems[i].id);
                 }
 //        Log.e(TAG,"---------------------------------------------------------------------------------------------------------");
             }
         }else {
+            //非循环模式下，滚动到边缘即停止动画
             if (moveDistance > unitHeight * itemList.size()-itemNumber/2*unitHeight-unitHeight) {
                 moveDistance = (int)( unitHeight * itemList.size()-itemNumber/2*unitHeight-unitHeight);
                 moveHandler.removeMessages(GO_ON_MOVE_REFRESH);
@@ -713,23 +715,23 @@ public class WheelView extends View {
             ItemObject first = itemList.get(0);
 
             int firstY = first.y + move;
-            int firstNumber = (int) (firstY / unitHeight);
-            int restMove = (int) (firstY - unitHeight * firstNumber);
+            int firstNumber = (int) (firstY / unitHeight);//滚轮中显示的第一个item的index
+            int restMove = (int) (firstY - unitHeight * firstNumber);//用以保证滚动的连续性
             int takeNumberStart = firstNumber ;
             synchronized (toShowItems) {
                 for (int i = 0; i < toShowItems.length; i++) {
                     int takeNumber = takeNumberStart + i;
                     int realNumber = takeNumber;
                     if (takeNumber < 0) {
-                        realNumber = -1;
+                        realNumber = -1;//用以标识超出的部分
                     } else if (takeNumber >= itemList.size()) {
-                        realNumber = -1;
+                        realNumber = -1;//用以标识超出的部分
                     }
                     if (realNumber==-1){
-                        toShowItems[i]=null;
+                        toShowItems[i]=null;//设置为null，则会留出空白
                     }else {
                         toShowItems[i] = itemList.get(realNumber);
-                        toShowItems[i].move = (int) (unitHeight * (i - realNumber)) - restMove;
+                        toShowItems[i].move((int) (unitHeight * (i - realNumber)) - restMove);//设置滚动的相对位置
                     }
 //            Log.e(TAG," toShowItems["+i+"] = "+ toShowItems[i].id);
                 }
@@ -738,6 +740,7 @@ public class WheelView extends View {
 
         }
 
+        //调用回调
         if (onSelectListener!=null&&toShowItems[itemNumber/2]!=null){
             callbackHandler.post(new Runnable() {
                 @Override
@@ -1015,11 +1018,11 @@ public class WheelView extends View {
          */
         int x = 0;
         /**
-         * y坐标,代表静止时的位置
+         * y坐标,代表绝对位置，由id和unitHeight决定
          */
         int y = 0;
         /**
-         * 移动距离，代表滑动的位置，滑动结束后应该置0
+         * 移动距离，代表滑动的相对位置，用以调整当前位置
          */
         int move = 0;
         /**
@@ -1114,22 +1117,12 @@ public class WheelView extends View {
         }
 
         /**
-         * 移动一段距离
+         * 设置相对移动的位置
          *
          * @param _move 移动的距离
          */
         public synchronized void move(int _move) {
             this.move = _move;
-        }
-
-        /**
-         * 设置新的坐标
-         *
-         * @param _move 移动的距离，叠加到当前坐标上
-         */
-        public  synchronized void newY(int _move) {
-            this.move = 0;
-            this.y = y + _move;
         }
 
         /**
