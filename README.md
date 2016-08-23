@@ -106,4 +106,4 @@ get if scroll cyclic
 
 
 
-具体的一些构思和设计思路，参见[这篇文章](http://www.jianshu.com/p/4b3e2373d0e2)
+具体的一些构思和设计思路，参见[这篇文章](http://www.jianshu.com/p/4b3e2373d0e2)和[这篇文章](http://www.jianshu.com/p/c01c1dda5a8a)
