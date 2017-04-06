@@ -14,7 +14,7 @@
 4. 滑动的距离跟滑动的速度成正比，和滑动的时间成反比；
 5. 实现循环滚动，并可以切换
 
-#How To Use
+# How To Use
 
 add to your build.gradle files:
 
@@ -43,64 +43,64 @@ dependencies {
 | unitHeight 		 | item unit height 每个item单元的高度 |
 | isCyclic 		     | if scroll cyclic 是否循环滚动 |
 
-#Method
-###1. setData(ArrayList<String> data)
+# Method
+### 1. setData(ArrayList<String> data)
 set WheelView data</br> 
 设置WheelView的数据
 
-###2. refreshData(ArrayList<String> data) 
+### 2. refreshData(ArrayList<String> data) 
 **refresh** WheelView data ,and draw again</br>
 **刷新** WheelView的数据，并重绘
 
-###3. int getSelected()
+### 3. int getSelected()
 get selected item index</br>
 获取选中项的index
 
-###4. String getSelectedText()
+### 4. String getSelectedText()
 get selected item text</br>
 获取选中项的文本信息
 
-###5. boolean isScrolling
+### 5. boolean isScrolling
 is WheelView is scrolling</br>
 获取WheelView是否在滚动中
 
-###6. boolean isEnable()
+### 6. boolean isEnable()
 is WheelView is enable</br>
 获取wheelView是否可用
 
-###7. void setEnable(boolean isEnable)  
+### 7. void setEnable(boolean isEnable)  
 set WheelView enable</br>
 设置WheelView是否可用
 
-###8. void setDefault(int index)
+### 8. void setDefault(int index)
 set **default selected index**</br>
 设置**默认选中项的index**
  
-###9. int getListSize() 
+### 9. int getListSize() 
 get WheelView item count</br>
 获取WheelView的item项个数
 
-###10. String getItemText(int index)
+### 10. String getItemText(int index)
 get the text by index </br>
 获取index位置上的文本数据
 
-###11. void setOnSelectListener(OnSelectListener onSelectListener)
+### 11. void setOnSelectListener(OnSelectListener onSelectListener)
 set listener on WheelView that can get info when WheelView is **scrolling** or **stop scroll**.</br>
 对WheelView**设置监听**，在 **滑动过程** 或者 **滑动停止** 返回数据信息。
 
-###12. void setItemNumber(int itemNumber)
+### 12. void setItemNumber(int itemNumber)
 set the number ofitem show in WheelView</br>
 设置WheelView展示的项目数量
 
-###13. int getItemNumber()
+### 13. int getItemNumber()
 get the number ofitem show in WheelView</br>
 获取WheelView展示的项目数量
 
-###14. void setCyclic(boolean cyclic)
+### 14. void setCyclic(boolean cyclic)
 set if scroll cyclic
 设置是否循环滚动
 
-###15. boolean isCyclic()
+### 15. boolean isCyclic()
 get if scroll cyclic
 获取是否循环滚动
 
