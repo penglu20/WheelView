@@ -703,12 +703,16 @@ public class WheelView extends View {
             //非循环模式下，滚动到边缘即停止动画
             if (moveDistance > unitHeight * itemList.size()-itemNumber/2*unitHeight-unitHeight) {
                 moveDistance = (int)( unitHeight * itemList.size()-itemNumber/2*unitHeight-unitHeight);
-                moveHandler.removeMessages(GO_ON_MOVE_REFRESH);
-                moveHandler.sendEmptyMessage(GO_ON_MOVE_INTERRUPTED);
+                if (moveHandler!=null) {
+                    moveHandler.removeMessages(GO_ON_MOVE_REFRESH);
+                    moveHandler.sendEmptyMessage(GO_ON_MOVE_INTERRUPTED);
+                }
             } else if (moveDistance < -itemNumber/2*unitHeight) {
                 moveDistance = (int) (-itemNumber/2*unitHeight);
-                moveHandler.removeMessages(GO_ON_MOVE_REFRESH);
-                moveHandler.sendEmptyMessage(GO_ON_MOVE_INTERRUPTED);
+                if (moveHandler!=null) {
+                    moveHandler.removeMessages(GO_ON_MOVE_REFRESH);
+                    moveHandler.sendEmptyMessage(GO_ON_MOVE_INTERRUPTED);
+                }
             }
 
             int move = moveDistance;
