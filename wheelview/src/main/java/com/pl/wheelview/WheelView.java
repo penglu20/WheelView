@@ -930,6 +930,9 @@ public class WheelView extends View {
      */
     public void setDefault(int index) {
         defaultIndex=index;
+        if (itemList.isEmpty()){
+            return;
+        }
         if (index > itemList.size() - 1)
             return;
         moveDistance=0;
