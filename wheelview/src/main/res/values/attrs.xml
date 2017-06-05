@@ -16,6 +16,9 @@
 
         <attr name="noEmpty" format="boolean"/>
         <attr name="isEnable" format="boolean"/>
+
+        <attr name="maskDarkColor" format="color" />
+        <attr name="maskLightColor" format="color" />
     </declare-styleable>
 
 

@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
-    android:orientation="horizontal"
-    android:padding="10dp"
-    >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:gravity="center_horizontal"
+  android:orientation="horizontal"
+  android:padding="10dp">
 
-    <com.pl.wheelview.WheelView
-        android:id="@+id/province_wv"
-        android:layout_width="100dp"
-        android:layout_height="200dp"
-        app:itemNumber="3"
-        app:lineColor="@color/colorAccent"
-        app:lineHeight="1.5dp"
-        app:noEmpty="true"
-        app:normalTextColor="#777"
-        app:normalTextSize="22sp"
-        app:selectedTextColor="#ff000000"
-        app:selectedTextSize="22sp"
-        app:unitHeight="50dp"
-        />
+  <com.pl.wheelview.WheelView
+    android:id="@+id/province_wv"
+    android:layout_width="100dp"
+    android:layout_height="200dp"
+    app:itemNumber="3"
+    app:lineColor="@color/colorAccent"
+    app:lineHeight="1.5dp"
+    app:noEmpty="true"
+    app:normalTextColor="#777"
+    app:maskDarkColor="#00000000"
+    app:maskLightColor="#00000000"
+    app:normalTextSize="22sp"
+    app:selectedTextColor="#ff000000"
+    app:selectedTextSize="22sp"
+    app:unitHeight="50dp" />
 
-    <com.pl.wheelview.WheelView
-        android:id="@+id/city_wv"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginLeft="10dp"
-        app:itemNumber="3"
-        app:lineColor="@color/colorAccent"
-        app:lineHeight="1.5dp"
-        app:noEmpty="true"
-        app:normalTextColor="#777"
-        app:normalTextSize="22sp"
-        app:selectedTextColor="#ff000000"
-        app:selectedTextSize="22sp"
-        app:unitHeight="50dp"
-        />
+  <com.pl.wheelview.WheelView
+    android:id="@+id/city_wv"
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:layout_marginLeft="10dp"
+    app:itemNumber="3"
+    app:lineColor="@color/colorAccent"
+    app:lineHeight="1.5dp"
+    app:maskDarkColor="#88444444"
+    app:maskLightColor="#30444444"
+    app:noEmpty="true"
+    app:normalTextColor="#777"
+    app:normalTextSize="22sp"
+    app:selectedTextColor="#ff000000"
+    app:selectedTextSize="22sp"
+    app:unitHeight="50dp" />
 
 </LinearLayout>

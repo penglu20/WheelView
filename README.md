@@ -20,7 +20,7 @@ add to your build.gradle files:
 
 ```
 dependencies {
-    compile 'com.pl:wheelview:0.6.6'
+    compile 'com.pl:wheelview:0.7.0'
 }
 ```
 
@@ -42,6 +42,8 @@ dependencies {
 | selectedTextSize 	 | selected Text size 选中文本字体大小 |
 | unitHeight 		 | item unit height 每个item单元的高度 |
 | isCyclic 		     | if scroll cyclic 是否循环滚动 |
+| maskDarkColor 		     | color of mask far from the select end 离选中位置远的遮罩颜色 |
+| maskLightColor 		     |  color of mask near the select end 离选中位置近的遮罩颜色 |
 
 # Method
 ### 1. setData(ArrayList<String> data)
