@@ -20,7 +20,7 @@ add to your build.gradle files:
 
 ```
 dependencies {
-    compile 'com.pl:wheelview:0.7.0'
+    compile 'com.pl:wheelview:0.7.1'
 }
 ```
 

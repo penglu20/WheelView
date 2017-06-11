@@ -678,6 +678,9 @@ public class WheelView extends View {
   private ItemObject[] toShowItems;//其长度等于itemNumber+2
 
   private void findItemsToShow() {
+    if (itemList.isEmpty()){
+      return;
+    }
     if (_isCyclic) {
       //循环模式下，将moveDistance限定在一定的范围内循环变化，同时要保证滚动的连续性
       if (moveDistance > unitHeight * itemList.size()) {
