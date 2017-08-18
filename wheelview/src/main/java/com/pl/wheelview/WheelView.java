@@ -335,6 +335,9 @@ public class WheelView extends View {
 
     @Override public void handleMessage(Message msg) {
       int lastDistance = goOnDistance;
+      if (moveHandler==null){
+        return;
+      }
       switch (msg.what) {
         case GO_ON_MOVE_REFRESH:
           //                    Log.d(TAG,"GO_ON_MOVE_REFRESH,showTime="+showTime);
