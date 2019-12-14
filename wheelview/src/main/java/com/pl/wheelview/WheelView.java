@@ -14,19 +14,17 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-//import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-
 import com.pl.whellview.R;
-
 import java.util.ArrayList;
 
 public class WheelView extends View {
+
   private static final String TAG = "WheelView";
   /**
    * 刷新界面
@@ -302,7 +300,8 @@ public class WheelView extends View {
     callbackHandler = new Handler(Looper.getMainLooper());
   }
 
-  @Override protected void onAttachedToWindow() {
+  @Override
+  protected void onAttachedToWindow() {
     super.onAttachedToWindow();
     moveHandlerThread = new HandlerThread("goOnHandlerThread");
     moveHandlerThread.setPriority(Thread.MIN_PRIORITY);
@@ -310,11 +309,11 @@ public class WheelView extends View {
     moveHandler = new GoOnHandler(moveHandlerThread.getLooper());
   }
 
-  @Override protected void onDetachedFromWindow() {
+  @Override
+  protected void onDetachedFromWindow() {
     //销毁线程和handler
     if (moveHandlerThread != null && moveHandlerThread.isAlive()) {
       moveHandlerThread.quit();
-      moveHandler = null;
     }
     super.onDetachedFromWindow();
   }
@@ -328,13 +327,15 @@ public class WheelView extends View {
   }
 
   private class GoOnHandler extends Handler {
+
     GoOnHandler(Looper looper) {
       super(looper);
     }
 
-    @Override public void handleMessage(Message msg) {
+    @Override
+    public void handleMessage(Message msg) {
       int lastDistance = goOnDistance;
-      if (moveHandler==null){
+      if (moveHandler == null) {
         return;
       }
       switch (msg.what) {
@@ -398,7 +399,7 @@ public class WheelView extends View {
     isGoOnMove = true;
     //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
     //防止重复滑动同一次Action_Down中滑动的部分
-    if (moveHandler==null){
+    if (moveHandler == null) {
       return;
     }
     moveHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
@@ -406,8 +407,11 @@ public class WheelView extends View {
     //        Log.d(TAG,"goonMove : goOnLimit="+goOnLimit);
   }
 
-  @Override public boolean onTouchEvent(MotionEvent event) {
-    if (!isEnable) return true;
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    if (!isEnable) {
+      return true;
+    }
     if (mVelocityTracker == null) {
       mVelocityTracker = VelocityTracker.obtain();
     }
@@ -496,7 +500,8 @@ public class WheelView extends View {
     _setIsCyclic(isCyclic);
   }
 
-  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     int heightMode = MeasureSpec.getMode(heightMeasureSpec);
     if (heightMode == MeasureSpec.AT_MOST) {
       int atMostHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -534,7 +539,8 @@ public class WheelView extends View {
     //        }
   }
 
-  @Override protected void onDraw(Canvas canvas) {
+  @Override
+  protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     //因为在recycler中添加的时候会导致文字不居中
     controlWidth = getWidth();
@@ -565,10 +571,14 @@ public class WheelView extends View {
    * 绘制待选项目
    */
   private synchronized void drawList(Canvas canvas) {
-    if (isClearing) return;
+    if (isClearing) {
+      return;
+    }
     synchronized (toShowItems) {
       for (ItemObject itemObject : toShowItems) {
-        if (itemObject != null) itemObject.drawSelf(canvas, getMeasuredWidth());
+        if (itemObject != null) {
+          itemObject.drawSelf(canvas, getMeasuredWidth());
+        }
       }
     }
   }
@@ -596,13 +606,14 @@ public class WheelView extends View {
   }
 
   /**
-   * 不能为空，必须有选项,滑动动画结束时调用
-   * 判断当前应该被选中的项目，如果其不在屏幕中间，则将其移动到屏幕中间
+   * 不能为空，必须有选项,滑动动画结束时调用 判断当前应该被选中的项目，如果其不在屏幕中间，则将其移动到屏幕中间
    *
    * @param moveSymbol 移动的距离，实际上只需要其符号，用于判断当前滑动方向
    */
   private void noEmpty(int moveSymbol) {
-    if (!noEmpty) return;
+    if (!noEmpty) {
+      return;
+    }
     // 将当前选择项目移动到正中间，防止出现偏差
 
     //        Log.d(TAG,"noEmpty start");
@@ -648,7 +659,8 @@ public class WheelView extends View {
     if (onSelectListener != null) {
       callbackHandler.removeCallbacksAndMessages(null);
       callbackHandler.post(new Runnable() {
-        @Override public void run() {
+        @Override
+        public void run() {
           onSelectListener.endSelect(toShowItem.id, toShowItem.getRawText());
         }
       });
@@ -686,8 +698,9 @@ public class WheelView extends View {
   private void findItemsToShow() {
     findItemsToShow(true);
   }
+
   private void findItemsToShow(boolean callListener) {
-    if (itemList.isEmpty()){
+    if (itemList.isEmpty()) {
       return;
     }
     if (_isCyclic) {
@@ -769,7 +782,8 @@ public class WheelView extends View {
     //调用回调
     if (callListener && onSelectListener != null && toShowItems[itemNumber / 2] != null) {
       callbackHandler.post(new Runnable() {
-        @Override public void run() {
+        @Override
+        public void run() {
           onSelectListener.selecting(toShowItems[itemNumber / 2].id,
               toShowItems[itemNumber / 2].getRawText());
         }
@@ -778,8 +792,7 @@ public class WheelView extends View {
   }
 
   /**
-   * 缓慢移动一段距离，移动速度为SLOW_MOVE_SPEED，
-   * 注意这个距离不是move参数，而是先将选项坐标移动move的距离以后，再判断当前应该选中的项目，然后将改项目移动到中间
+   * 缓慢移动一段距离，移动速度为SLOW_MOVE_SPEED， 注意这个距离不是move参数，而是先将选项坐标移动move的距离以后，再判断当前应该选中的项目，然后将改项目移动到中间
    * 移动完成后调用noEmpty
    *
    * @param move 立即设置的新坐标移动距离，不是缓慢移动的距离
@@ -791,7 +804,8 @@ public class WheelView extends View {
     }
     //        Log.d(TAG,"slowMove start");
     moveHandler.post(new Runnable() {
-      @Override public void run() {
+      @Override
+      public void run() {
         //                Log.d(TAG,"slowMove run start");
         int newMove = 0;
         findItemsToShow();
@@ -893,7 +907,9 @@ public class WheelView extends View {
   public int getSelected() {
     synchronized (toShowItems) {
       for (ItemObject item : toShowItems) {
-        if (item != null && item.selected()) return item.id;
+        if (item != null && item.selected()) {
+          return item.id;
+        }
       }
       return -1;
     }
@@ -905,7 +921,9 @@ public class WheelView extends View {
   public String getSelectedText() {
     synchronized (toShowItems) {
       for (ItemObject item : toShowItems) {
-        if (item != null && item.selected()) return item.getRawText();
+        if (item != null && item.selected()) {
+          return item.getRawText();
+        }
       }
       return "";
     }
@@ -940,7 +958,9 @@ public class WheelView extends View {
     if (itemList.isEmpty()) {
       return;
     }
-    if (index > itemList.size() - 1) return;
+    if (index > itemList.size() - 1) {
+      return;
+    }
     moveDistance = 0;
     for (ItemObject item : itemList) {
       item.move = 0;
@@ -957,7 +977,9 @@ public class WheelView extends View {
    * 获取列表大小
    */
   public int getListSize() {
-    if (itemList == null) return 0;
+    if (itemList == null) {
+      return 0;
+    }
     return itemList.size();
   }
 
@@ -965,7 +987,9 @@ public class WheelView extends View {
    * 获取某项的内容
    */
   public String getItemText(int index) {
-    if (itemList == null) return "";
+    if (itemList == null) {
+      return "";
+    }
     return itemList.get(index).getRawText();
   }
 
@@ -1009,6 +1033,7 @@ public class WheelView extends View {
   }
 
   private class ItemObject {
+
     /**
      * id
      */
@@ -1117,7 +1142,8 @@ public class WheelView extends View {
     public synchronized boolean isInView() {
 
       //            if (y + move > controlHeight || ((float)y + (float)move + (float)unitHeight / 2 + (float)textRect.height() / 2f) < 0)
-      if (y + move > controlHeight || ((float) y + (float) move + (float) unitHeight) < 0)//放宽判断的条件，否则就不能再onDraw的开头执行，而要到textRect测量完成才能执行
+      if (y + move > controlHeight || ((float) y + (float) move + (float) unitHeight)
+          < 0)//放宽判断的条件，否则就不能再onDraw的开头执行，而要到textRect测量完成才能执行
       {
         return false;
       }
@@ -1134,9 +1160,7 @@ public class WheelView extends View {
     }
 
     /**
-     * 判断是否在可以选择区域内,用于在没有刚好被选中项的时候判断备选项
-     * 考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度
-     * 因此判断为可选区域的标准是需要减去文字的部分的
+     * 判断是否在可以选择区域内,用于在没有刚好被选中项的时候判断备选项 考虑到文字的baseLine是其底部，而y+m的高度是文字的顶部的高度 因此判断为可选区域的标准是需要减去文字的部分的
      * 也就是y+m在正中间和正中间上面一格的范围内，则判断为可选
      */
     public synchronized boolean couldSelected() {
@@ -1183,6 +1207,7 @@ public class WheelView extends View {
   }
 
   public interface OnSelectListener {
+
     /**
      * 结束选择，滑动停止时回调
      */
