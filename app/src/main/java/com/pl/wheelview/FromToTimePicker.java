@@ -3,6 +3,7 @@ package com.pl.wheelview;
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -43,11 +44,13 @@ public class FromToTimePicker extends LinearLayout {
         @Override
         public void endSelect(int minute, String text) {
             mFromMinute  = minute;
+            Log.e("mFromMinuteListener", "endSelect" + mFromMinute);
         }
 
         @Override
         public void selecting(int id, String text) {
             mFromMinute  = id;
+            Log.e("mFromMinuteListener", "selecting" + mFromMinute);
         }
     };
 
@@ -57,11 +60,13 @@ public class FromToTimePicker extends LinearLayout {
         @Override
         public void endSelect(int hour, String text) {
             mToHour = hour;
+            Log.e("mToHourListener", "endSelect" + mToHour);
         }
 
         @Override
         public void selecting(int hour, String text) {
             mToHour = hour;
+            Log.e("mToHourListener", "selecting" + mToHour);
         }
     };
     private WheelView.OnSelectListener mToMinuteListener = new WheelView.OnSelectListener() {

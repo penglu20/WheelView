@@ -2,7 +2,6 @@ package com.pl.wheelview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.database.DefaultDatabaseErrorHandler;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
@@ -399,6 +398,9 @@ public class WheelView extends View {
     isGoOnMove = true;
     //将MotionEvent.ACTION_MOVE引起的滑动的距离设置为新的起点，然后再开始新的滑动
     //防止重复滑动同一次Action_Down中滑动的部分
+    if (moveHandler==null){
+      return;
+    }
     moveHandler.sendEmptyMessage(GO_ON_MOVE_REFRESH);
     //        Log.d(TAG,"goonMove : newGoonMove="+newGoonMove);
     //        Log.d(TAG,"goonMove : goOnLimit="+goOnLimit);
@@ -644,9 +646,10 @@ public class WheelView extends View {
 
   private void onEndSelecting(final ItemObject toShowItem) {
     if (onSelectListener != null) {
+      callbackHandler.removeCallbacksAndMessages(null);
       callbackHandler.post(new Runnable() {
         @Override public void run() {
-          onSelectListener.endSelect(toShowItem.id, toShowItem.getItemText());
+          onSelectListener.endSelect(toShowItem.id, toShowItem.getRawText());
         }
       });
     }
@@ -681,6 +684,9 @@ public class WheelView extends View {
   private ItemObject[] toShowItems;//其长度等于itemNumber+2
 
   private void findItemsToShow() {
+    findItemsToShow(true);
+  }
+  private void findItemsToShow(boolean callListener) {
     if (itemList.isEmpty()){
       return;
     }
@@ -761,11 +767,11 @@ public class WheelView extends View {
     }
 
     //调用回调
-    if (onSelectListener != null && toShowItems[itemNumber / 2] != null) {
+    if (callListener && onSelectListener != null && toShowItems[itemNumber / 2] != null) {
       callbackHandler.post(new Runnable() {
         @Override public void run() {
           onSelectListener.selecting(toShowItems[itemNumber / 2].id,
-              toShowItems[itemNumber / 2].getItemText());
+              toShowItems[itemNumber / 2].getRawText());
         }
       });
     }
@@ -856,7 +862,7 @@ public class WheelView extends View {
    */
   private void defaultMove(int move) {
     moveDistance -= move;
-    findItemsToShow();
+    findItemsToShow(false);
     postInvalidate();
   }
 
@@ -899,7 +905,7 @@ public class WheelView extends View {
   public String getSelectedText() {
     synchronized (toShowItems) {
       for (ItemObject item : toShowItems) {
-        if (item != null && item.selected()) return item.getItemText();
+        if (item != null && item.selected()) return item.getRawText();
       }
       return "";
     }
@@ -941,6 +947,7 @@ public class WheelView extends View {
     }
     findItemsToShow();
     float move = itemList.get(index).moveToSelected();
+    onEndSelecting(itemList.get(index));
     defaultMove((int) move);
   }
 
@@ -959,7 +966,7 @@ public class WheelView extends View {
    */
   public String getItemText(int index) {
     if (itemList == null) return "";
-    return itemList.get(index).getItemText();
+    return itemList.get(index).getRawText();
   }
 
   /**
@@ -1010,6 +1017,10 @@ public class WheelView extends View {
      * 内容
      */
     private String itemText = "";
+    /**
+     * 原始内容，itemText可能会缩短成...，导致使用时出错
+     */
+    private String rawText = "";
     /**
      * x坐标
      */
@@ -1079,7 +1090,7 @@ public class WheelView extends View {
 
       if (shouldRefreshTextPaint) {
         //有可能导致文字消失，itemText变成空字符串，
-        // 是因为文字设置过大，而containweWidth太小，
+        // 是因为文字设置过大，而containerWidth太小，
         // 本来会将无法显示的文字用"..."表示，但是连"..."本身也无法显示的时候，就会变成空字符串
         itemText = (String) TextUtils.ellipsize(itemText, textPaint, containerWidth,
             TextUtils.TruncateAt.END);
@@ -1153,13 +1164,14 @@ public class WheelView extends View {
       return isSelect;
     }
 
-    public String getItemText() {
-      return itemText;
+    public String getRawText() {
+      return rawText;
     }
 
     public void setItemText(String itemText) {
       shouldRefreshTextPaint = true;
       this.itemText = itemText;
+      this.rawText = new String(itemText);
     }
 
     /**
