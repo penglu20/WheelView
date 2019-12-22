@@ -13,6 +13,7 @@
 3. 滑动过程中触摸立即停止滑动；
 4. 滑动的距离跟滑动的速度成正比，和滑动的时间成反比；
 5. 实现循环滚动，并可以切换
+5. 允许手动输入内容，类似系统的NumberPicker
 
 # How To Use
 
@@ -44,6 +45,8 @@ dependencies {
 | isCyclic 		     | if scroll cyclic 是否循环滚动 |
 | maskDarkColor 		     | color of mask far from the select end 离选中位置远的遮罩颜色 |
 | maskLightColor 		     |  color of mask near the select end 离选中位置近的遮罩颜色 |
+| withInputText 		     |  should use input text in middle of wheelView 是否允许点击滚轮中间手动输入 |
+| android:inputType 		     |  the input type of input text 手动输入的输入类型 |
 
 # Method
 ### 1. setData(ArrayList<String> data)
