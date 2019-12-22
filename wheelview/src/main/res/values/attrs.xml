@@ -19,6 +19,9 @@
 
         <attr name="maskDarkColor" format="color" />
         <attr name="maskLightColor" format="color" />
+
+        <attr name="withInputText" format="boolean"/>
+        <attr name="android:inputType"/>
     </declare-styleable>
 
 

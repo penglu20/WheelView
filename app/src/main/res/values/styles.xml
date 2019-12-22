@@ -22,6 +22,8 @@
         <item name="selectedTextColor">#222222</item>
         <item name="selectedTextSize">@dimen/text_size_select</item>
         <item name="unitHeight">@dimen/height_small</item>
+        <item name="android:inputType">number</item>
+        <item name="withInputText">true</item>
     </style>
 
 

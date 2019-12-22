@@ -3,6 +3,7 @@ package com.pl.wheelview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -14,16 +15,26 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import com.pl.whellview.R;
 import java.util.ArrayList;
 
-public class WheelView extends View {
+public class WheelView extends FrameLayout {
 
   private static final String TAG = "WheelView";
   /**
@@ -163,6 +174,10 @@ public class WheelView extends View {
    */
   private OnSelectListener onSelectListener;
   /**
+   * 输入监听
+   */
+  private onInputListener onInputListener;
+  /**
    * 是否可用
    */
   private boolean isEnable = true;
@@ -233,6 +248,16 @@ public class WheelView extends View {
    */
   private int moveDistance;
 
+  /**
+   * 是否允许使用文字输入
+   */
+  private boolean withInputText;
+
+  /**
+   * The text for showing the current value.
+   */
+  private EditText mInputText;
+
   private Handler callbackHandler;
   private LinearGradient linearGradientUp;
   private LinearGradient linearGradientDown;
@@ -250,14 +275,13 @@ public class WheelView extends View {
   }
 
   public WheelView(Context context) {
-    super(context);
-    initData();
+    this(context, null);
   }
 
   /**
    * 初始化，获取设置的属性
    */
-  private void init(Context context, AttributeSet attrs) {
+  private void init(final Context context, AttributeSet attrs) {
 
     TypedArray attribute = context.obtainStyledAttributes(attrs, R.styleable.WheelView);
     unitHeight = (int) attribute.getDimension(R.styleable.WheelView_unitHeight, unitHeight);
@@ -275,13 +299,12 @@ public class WheelView extends View {
     noEmpty = attribute.getBoolean(R.styleable.WheelView_noEmpty, true);
     isEnable = attribute.getBoolean(R.styleable.WheelView_isEnable, true);
     isCyclic = attribute.getBoolean(R.styleable.WheelView_isCyclic, true);
+    withInputText = attribute.getBoolean(R.styleable.WheelView_withInputText, false);
 
     maskDarkColor =
         attribute.getColor(R.styleable.WheelView_maskDarkColor, DEFAULT_MASK_DARK_COLOR);
     maskLightColor =
         attribute.getColor(R.styleable.WheelView_maskLightColor, DEFAULT_MASK_LIGHT_COLOR);
-
-    attribute.recycle();
 
     density = context.getResources().getDisplayMetrics().density;
     slowMoveSpeed = (int) (density * SLOW_MOVE_SPEED);
@@ -298,8 +321,66 @@ public class WheelView extends View {
     mMaximumFlingVelocity = configuration.getScaledMaximumFlingVelocity();
 
     callbackHandler = new Handler(Looper.getMainLooper());
+
+    mInputText = new EditText(context);
+    mInputText.setBackgroundColor(Color.WHITE);
+    mInputText.setTextSize(TypedValue.COMPLEX_UNIT_PX, selectedFont);
+    mInputText.setGravity(Gravity.CENTER);
+    mInputText.setPadding(0, 0, 0, 0);
+    mInputText.setOnFocusChangeListener(new OnFocusChangeListener() {
+      public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus) {
+          mInputText.setText(getSelectedText());
+          mInputText.selectAll();
+          showInputMethod(context);
+        } else {
+          mInputText.setSelection(0, 0);
+          mInputText.setVisibility(GONE);
+          hideInputMethod(mInputText);
+        }
+      }
+    });
+    int inputType = EditorInfo.TYPE_NULL;
+    inputType = attribute.getInt(R.styleable.WheelView_android_inputType, EditorInfo.TYPE_NULL);
+    mInputText.setInputType(inputType);
+    mInputText.onEditorAction(EditorInfo.IME_ACTION_DONE);
+    mInputText.setOnEditorActionListener(new OnEditorActionListener() {
+      @Override
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE
+            || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+          mInputText.setVisibility(GONE);
+          if (onInputListener != null) {
+            onInputListener.endInput(mInputText.getText().toString());
+          }
+          return true;
+        }
+        return false;
+      }
+    });
+
+    attribute.recycle();
+    LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        (int) unitHeight);
+    layoutParams.gravity = Gravity.CENTER;
+    addView(mInputText, layoutParams);
+    mInputText.setVisibility(GONE);
+    setWillNotDraw(false);
   }
 
+  private void showInputMethod(Context context) {
+    InputMethodManager imm =
+        (InputMethodManager)
+            context.getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.showSoftInput(mInputText, InputMethodManager.SHOW_IMPLICIT);
+  }
+
+  public static void hideInputMethod(View view) {
+    InputMethodManager imm =
+        (InputMethodManager)
+            view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+  }
   @Override
   protected void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -420,6 +501,8 @@ public class WheelView extends View {
     int y = (int) event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
+        mInputText.setVisibility(GONE);
+        mInputText.clearFocus();
         //防止被其他可滑动View抢占焦点，比如嵌套到ListView中使用时
         getParent().requestDisallowInterceptTouchEvent(true);
         if (isScrolling) {
@@ -455,16 +538,20 @@ public class WheelView extends View {
         } else {
           //如果移动距离较小，则认为是点击事件，否则认为是小距离滑动
           if (Math.abs(y - downY) <= clickDistance && time <= clickTimeout) {
-            if (downY < unitHeight * (itemNumber / 2) + unitHeight * 1 / 3 && downY > 0) {
+            if (downY < unitHeight * (itemNumber / 2) && downY > 0) {
               //如果不先move再up，而是直接up，则无法产生点击时的滑动效果
               //通过调整move和up的距离，可以调整点击的效果
               actionMove((int) (unitHeight / 3));
-              slowMove((int) unitHeight / 3);
-            } else if (downY > controlHeight - unitHeight * (itemNumber / 2) - unitHeight * 1 / 3
+              slowMove((int) unitHeight * 2 / 3);
+            } else if (downY > controlHeight - unitHeight * (itemNumber / 2)
                 && downY < controlHeight) {
               actionMove(-(int) (unitHeight / 3));
-              slowMove(-(int) unitHeight / 3);
+              slowMove(-(int) unitHeight * 2 / 3);
             } else {
+              if (withInputText) {
+                mInputText.setVisibility(VISIBLE);
+                mInputText.requestFocus();
+              }
               noEmpty(y - downY);
             }
           } else {
@@ -532,6 +619,9 @@ public class WheelView extends View {
         setDefault(defaultIndex);
       }
       lastMeasuredHeight = controlHeight;
+      mInputText.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+          MeasureSpec.makeMeasureSpec((int) (controlHeight / itemNumber), MeasureSpec.EXACTLY));
+      mInputText.getLayoutParams().height = (int) (controlHeight / itemNumber);
     }
     //        controlWidth = getWidth();
     //        if (controlWidth != 0) {
@@ -662,6 +752,8 @@ public class WheelView extends View {
         @Override
         public void run() {
           onSelectListener.endSelect(toShowItem.id, toShowItem.getRawText());
+          mInputText.setText(toShowItem.getRawText());
+          mInputText.selectAll();
         }
       });
     }
@@ -1000,6 +1092,11 @@ public class WheelView extends View {
     this.onSelectListener = onSelectListener;
   }
 
+
+  public void setOnInputListener(WheelView.onInputListener onInputListener) {
+    this.onInputListener = onInputListener;
+  }
+
   /**
    * 获取当前展示的项目数量
    */
@@ -1030,6 +1127,14 @@ public class WheelView extends View {
   public void setCyclic(boolean cyclic) {
     isCyclic = cyclic;
     _setIsCyclic(cyclic);
+  }
+
+  public boolean isWithInputText() {
+    return withInputText;
+  }
+
+  public void setWithInputText(boolean withInputText) {
+    this.withInputText = withInputText;
   }
 
   private class ItemObject {
@@ -1111,6 +1216,7 @@ public class WheelView extends View {
         //如果高度太小了，则调整字体大小，以匹配高度
         float textSize = unitHeight - lineHeight * 2;
         textPaint.setTextSize(textSize);
+        mInputText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
       }
 
       if (shouldRefreshTextPaint) {
@@ -1217,5 +1323,13 @@ public class WheelView extends View {
      * 选中的内容，滑动的过程中会不断回调
      */
     void selecting(int id, String text);
+  }
+
+  public interface onInputListener {
+
+    /**
+     * 输入的内容，输入完成后，按回车键时回调
+     */
+    void endInput(String text);
   }
 }
