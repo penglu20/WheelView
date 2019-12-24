@@ -333,6 +333,9 @@ public class WheelView extends FrameLayout {
           mInputText.setText(getSelectedText());
           mInputText.selectAll();
           showInputMethod(context);
+          if (onInputListener != null) {
+            onInputListener.onStartInput(mInputText, getSelectedText());
+          }
         } else {
           mInputText.setSelection(0, 0);
           mInputText.setVisibility(GONE);
@@ -381,6 +384,7 @@ public class WheelView extends FrameLayout {
             view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
   }
+
   @Override
   protected void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -752,8 +756,6 @@ public class WheelView extends FrameLayout {
         @Override
         public void run() {
           onSelectListener.endSelect(toShowItem.id, toShowItem.getRawText());
-          mInputText.setText(toShowItem.getRawText());
-          mInputText.selectAll();
         }
       });
     }
@@ -1331,5 +1333,13 @@ public class WheelView extends FrameLayout {
      * 输入的内容，输入完成后，按回车键时回调
      */
     void endInput(String text);
+
+    /**
+     * 开始输入时回调
+     *
+     * @param editText 输入框控件
+     * @param selected 已选内容
+     */
+    void onStartInput(EditText editText, String selected);
   }
 }

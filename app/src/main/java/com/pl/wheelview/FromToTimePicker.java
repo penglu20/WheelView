@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-
-
+import com.pl.wheelview.WheelView.onInputListener;
 import java.util.ArrayList;
 
 
@@ -132,6 +132,17 @@ public class FromToTimePicker extends LinearLayout {
                 }
             }
         });
+
+      mWheelToMinute.setOnInputListener(new onInputListener() {
+        @Override
+        public void endInput(String text) {
+
+        }
+
+        @Override
+        public void onStartInput(final EditText editText, final String selected) {
+        }
+      });
         setDate();
     }
 

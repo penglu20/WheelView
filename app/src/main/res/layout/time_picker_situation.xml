@@ -70,6 +70,7 @@
             app:isCyclic="true"
             app:itemNumber="7"
             style="@style/wheelViewStyle_time"
+          app:withVibrator="true"
             android:layout_marginRight="@dimen/margin_double" />
     </LinearLayout>
 
