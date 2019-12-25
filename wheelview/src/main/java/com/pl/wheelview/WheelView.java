@@ -15,6 +15,7 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -322,8 +323,15 @@ public class WheelView extends FrameLayout {
 
     callbackHandler = new Handler(Looper.getMainLooper());
 
+    int inputColor = attribute.getColor(R.styleable.WheelView_inputTextColor, Color.BLACK);
+    int background = attribute.getResourceId(R.styleable.WheelView_inputBackground, 0);
     mInputText = new EditText(context);
-    mInputText.setBackgroundColor(Color.WHITE);
+    if (background == 0) {
+      mInputText.setBackgroundColor(Color.TRANSPARENT);
+    } else {
+      mInputText.setBackgroundResource(background);
+    }
+    mInputText.setTextColor(inputColor);
     mInputText.setTextSize(TypedValue.COMPLEX_UNIT_PX, selectedFont);
     mInputText.setGravity(Gravity.CENTER);
     mInputText.setPadding(0, 0, 0, 0);
@@ -362,13 +370,19 @@ public class WheelView extends FrameLayout {
       }
     });
 
-    attribute.recycle();
     LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
         (int) unitHeight);
     layoutParams.gravity = Gravity.CENTER;
+    layoutParams.leftMargin = attribute
+        .getDimensionPixelOffset(R.styleable.WheelView_inputMarginLeft, 0);
+    layoutParams.rightMargin = attribute
+        .getDimensionPixelOffset(R.styleable.WheelView_inputMarginRight, 0);
+    Log.e(TAG, "leftMargin=" + layoutParams.leftMargin);
+    Log.e(TAG, "rightMargin=" + layoutParams.rightMargin);
     addView(mInputText, layoutParams);
     mInputText.setVisibility(GONE);
     setWillNotDraw(false);
+    attribute.recycle();
   }
 
   private void showInputMethod(Context context) {
@@ -613,6 +627,9 @@ public class WheelView extends FrameLayout {
     int width = MeasureSpec.getSize(widthMeasureSpec);
     setMeasuredDimension(width, (int) controlHeight);
 
+    mInputText.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+        MeasureSpec.makeMeasureSpec((int) (controlHeight / itemNumber), MeasureSpec.EXACTLY));
+
     //用于解决尺寸变化引起的文字位置错乱的问题
     if (Math.abs(lastMeasuredHeight - controlHeight) > 0.1) {
       int index = getSelected();
@@ -623,8 +640,6 @@ public class WheelView extends FrameLayout {
         setDefault(defaultIndex);
       }
       lastMeasuredHeight = controlHeight;
-      mInputText.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
-          MeasureSpec.makeMeasureSpec((int) (controlHeight / itemNumber), MeasureSpec.EXACTLY));
       mInputText.getLayoutParams().height = (int) (controlHeight / itemNumber);
     }
     //        controlWidth = getWidth();
