@@ -134,14 +134,16 @@ public class FromToTimePicker extends LinearLayout {
         });
 
       mWheelToMinute.setOnInputListener(new onInputListener() {
-        @Override
-        public void endInput(String text) {
+          @Override
+          public void endInput(WheelView wheelView, EditText editText, String text) {
 
-        }
+          }
 
-        @Override
-        public void onStartInput(final EditText editText, final String selected) {
-        }
+          @Override
+          public void onStartInput(WheelView wheelView, EditText editText, String selected) {
+
+          }
+
       });
         setDate();
     }

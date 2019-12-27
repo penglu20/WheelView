@@ -339,11 +339,11 @@ public class WheelView extends FrameLayout {
       public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
           mInputText.setText(getSelectedText());
-          mInputText.selectAll();
           showInputMethod(context);
           if (onInputListener != null) {
-            onInputListener.onStartInput(mInputText, getSelectedText());
+            onInputListener.onStartInput(WheelView.this, mInputText, getSelectedText());
           }
+          mInputText.selectAll();
         } else {
           mInputText.setSelection(0, 0);
           mInputText.setVisibility(GONE);
@@ -354,15 +354,15 @@ public class WheelView extends FrameLayout {
     int inputType = EditorInfo.TYPE_NULL;
     inputType = attribute.getInt(R.styleable.WheelView_android_inputType, EditorInfo.TYPE_NULL);
     mInputText.setInputType(inputType);
-    mInputText.onEditorAction(EditorInfo.IME_ACTION_DONE);
+    mInputText.setImeOptions(EditorInfo.IME_ACTION_DONE);
     mInputText.setOnEditorActionListener(new OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE
-            || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
           mInputText.setVisibility(GONE);
           if (onInputListener != null) {
-            onInputListener.endInput(mInputText.getText().toString());
+            onInputListener.endInput(WheelView.this, mInputText, mInputText.getText().toString());
           }
           return true;
         }
@@ -627,7 +627,9 @@ public class WheelView extends FrameLayout {
     int width = MeasureSpec.getSize(widthMeasureSpec);
     setMeasuredDimension(width, (int) controlHeight);
 
-    mInputText.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+    mInputText.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth() - ((LayoutParams) mInputText
+            .getLayoutParams()).leftMargin - ((LayoutParams) mInputText
+            .getLayoutParams()).rightMargin, MeasureSpec.EXACTLY),
         MeasureSpec.makeMeasureSpec((int) (controlHeight / itemNumber), MeasureSpec.EXACTLY));
 
     //用于解决尺寸变化引起的文字位置错乱的问题
@@ -1347,7 +1349,7 @@ public class WheelView extends FrameLayout {
     /**
      * 输入的内容，输入完成后，按回车键时回调
      */
-    void endInput(String text);
+    void endInput(WheelView wheelView, EditText editText, String text);
 
     /**
      * 开始输入时回调
@@ -1355,6 +1357,6 @@ public class WheelView extends FrameLayout {
      * @param editText 输入框控件
      * @param selected 已选内容
      */
-    void onStartInput(EditText editText, String selected);
+    void onStartInput(WheelView wheelView, EditText editText, String selected);
   }
 }
