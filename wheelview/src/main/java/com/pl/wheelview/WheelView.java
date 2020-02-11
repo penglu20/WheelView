@@ -347,6 +347,9 @@ public class WheelView extends FrameLayout {
         } else {
           mInputText.setSelection(0, 0);
           mInputText.setVisibility(GONE);
+          if (onInputListener != null) {
+            onInputListener.endInput(WheelView.this, mInputText, mInputText.getText().toString());
+          }
           hideInputMethod(mInputText);
         }
       }
