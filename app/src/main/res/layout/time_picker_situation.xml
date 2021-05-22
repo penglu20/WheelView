@@ -1,112 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/white"
+  android:orientation="vertical">
+
+
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <com.pl.wheelview.WheelView
+      android:id="@+id/from_hour"
+      style="@style/wheelViewStyle_time"
+      android:layout_marginLeft="@dimen/margin_double"
+      app:isCyclic="false"
+      app:itemNumber="1" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:padding="10dp"
+
+      android:text=" : "
+      android:textColor="@color/primary_text"
+      android:textSize="@dimen/text_size_title" />
+
+    <com.pl.wheelview.WheelView
+      android:id="@+id/from_minute"
+      style="@style/wheelViewStyle_time"
+      android:layout_marginRight="@dimen/margin_double"
+      app:isCyclic="true"
+      app:itemNumber="3" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:padding="@dimen/margin_double"
+
+      android:text=" - "
+      android:textColor="@color/primary_text"
+      android:textSize="@dimen/text_size_title" />
+
+    <com.pl.wheelview.WheelView
+      android:id="@+id/to_hour"
+      style="@style/wheelViewStyle_time"
+      android:layout_marginLeft="@dimen/margin_double"
+      app:isCyclic="false"
+      app:itemNumber="5" />
+
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:padding="10dp"
+
+      android:text=" : "
+      android:textColor="@color/primary_text"
+      android:textSize="@dimen/text_size_title" />
+
+    <com.pl.wheelview.WheelView
+      android:id="@+id/to_minute"
+      style="@style/wheelViewStyle_time"
+      android:layout_marginRight="@dimen/margin_double"
+      app:inputBackground="@drawable/button_white_stroke_green"
+      app:inputMarginLeft="2dp"
+      app:inputMarginRight="2dp"
+      app:isCyclic="true"
+      app:itemNumber="7" />
+  </LinearLayout>
+
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/margin_double"
+    android:paddingBottom="@dimen/margin_double">
 
+    <Button
+      android:id="@+id/cancel"
+      android:layout_width="0dp"
+      android:layout_height="@dimen/height_small_32"
+      android:layout_marginLeft="@dimen/margin_triple"
+      android:layout_marginRight="@dimen/margin_triple"
+      android:layout_weight="1"
+      android:background="@drawable/button_white_stroke_green"
+      android:gravity="center"
+      android:text="取消"
+      android:textColor="@color/primary_text"
+      android:textSize="@dimen/text_size_normal" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <com.pl.wheelview.WheelView
-            android:id="@+id/from_hour"
-            app:isCyclic="false"
-            app:itemNumber="1"
-            style="@style/wheelViewStyle_time"
-            android:layout_marginLeft="@dimen/margin_double" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="10dp"
-
-            android:text=" : "
-            android:textColor="@color/primary_text"
-            android:textSize="@dimen/text_size_title" />
-
-        <com.pl.wheelview.WheelView
-            android:id="@+id/from_minute"
-            app:isCyclic="true"
-            app:itemNumber="3"
-            style="@style/wheelViewStyle_time"
-            android:layout_marginRight="@dimen/margin_double" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="@dimen/margin_double"
-
-            android:text=" - "
-            android:textColor="@color/primary_text"
-            android:textSize="@dimen/text_size_title" />
-
-        <com.pl.wheelview.WheelView
-            android:id="@+id/to_hour"
-            app:isCyclic="false"
-            app:itemNumber="5"
-            style="@style/wheelViewStyle_time"
-            android:layout_marginLeft="@dimen/margin_double" />
-
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="10dp"
-
-            android:text=" : "
-            android:textColor="@color/primary_text"
-            android:textSize="@dimen/text_size_title" />
-
-        <com.pl.wheelview.WheelView
-            android:id="@+id/to_minute"
-            app:isCyclic="true"
-            app:itemNumber="7"
-            style="@style/wheelViewStyle_time"
-          app:inputBackground="@drawable/button_white_stroke_green"
-          app:inputMarginLeft="2dp"
-          app:inputMarginRight="2dp"
-            android:layout_marginRight="@dimen/margin_double" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="@dimen/margin_double"
-        android:paddingTop="@dimen/margin_double">
-
-        <Button
-            android:id="@+id/cancel"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/height_small_32"
-            android:layout_marginLeft="@dimen/margin_triple"
-            android:layout_marginRight="@dimen/margin_triple"
-            android:layout_weight="1"
-            android:background="@drawable/button_white_stroke_green"
-            android:gravity="center"
-            android:text="取消"
-            android:textColor="@color/primary_text"
-            android:textSize="@dimen/text_size_normal" />
-
-        <Button
-            android:id="@+id/confirm"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/height_small_32"
-            android:layout_marginRight="@dimen/margin_triple"
-            android:layout_weight="1"
-            android:background="@drawable/button_green_solid"
-            android:gravity="center"
-            android:text="确认"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_normal" />
-    </LinearLayout>
+    <Button
+      android:id="@+id/confirm"
+      android:layout_width="0dp"
+      android:layout_height="@dimen/height_small_32"
+      android:layout_marginRight="@dimen/margin_triple"
+      android:layout_weight="1"
+      android:background="@drawable/button_green_solid"
+      android:gravity="center"
+      android:text="确认"
+      android:textColor="@color/white"
+      android:textSize="@dimen/text_size_normal" />
+  </LinearLayout>
 
 </LinearLayout>

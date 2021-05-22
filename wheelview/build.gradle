@@ -2,14 +2,14 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "0.7.7.7"
-def siteUrl = 'https://github.com/l465659833/WheelView'                        // #CONFIG# // project homepage
-def gitUrl = 'https://github.com/l465659833/WheelView.git'                     // #CONFIG# // project git
+version = "0.7.7.8"
+def siteUrl = 'https://github.com/penglu20/WheelView'                        // #CONFIG# // project homepage
+def gitUrl = 'https://github.com/penglu20/WheelView.git'                     // #CONFIG# // project git
 group = "com.pl"
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
+    compileSdkVersion = 29
+    buildToolsVersion = '29.0.2'
 
     defaultConfig {
         minSdkVersion 9
@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 
@@ -54,9 +54,12 @@ install {
                 }
                 developers {
                     developer {
-                        id 'pl'                                           // #CONFIG# // your user id (you can write your nickname)
-                        name 'l465659833'                                       // #CONFIG# // your user name
-                        email 'hnldpl@gmail.com'                               // #CONFIG# // your email
+                        id 'pl'
+                        // #CONFIG# // your user id (you can write your nickname)
+                        name 'l465659833'
+                        // #CONFIG# // your user name
+                        email 'hnldpl@gmail.com'
+                        // #CONFIG# // your email
                     }
                 }
                 scm {
@@ -91,13 +94,13 @@ artifacts {
 
 Properties properties = new Properties()
 boolean isHasFile = false
-File localFile=new File("local.properties");
-if (localFile.exists()){
+File localFile = new File("local.properties");
+if (localFile.exists()) {
     isHasFile = true
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    println("properties==============="+properties)
-}else {
-    println("properties==============="+"not find")
+    println("properties===============" + properties)
+} else {
+    println("properties===============" + "not find")
 }
 
 bintray {
@@ -106,7 +109,8 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "WheelView"                                                 // #CONFIG# project name in jcenter
+        name = "WheelView"
+        // #CONFIG# project name in jcenter
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]

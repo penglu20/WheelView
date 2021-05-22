@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="WheelView">
-        <attr name="unitHeight" format="dimension" />
-        <attr name="itemNumber" format="integer"/>
+  <declare-styleable name="WheelView">
+    <attr name="unitHeight" format="dimension" />
+    <attr name="itemNumber" format="integer" />
 
-        <attr name="normalTextColor" format="color" />
-        <attr name="normalTextSize" format="dimension" />
-        <attr name="selectedTextColor" format="color" />
-        <attr name="selectedTextSize" format="dimension" />
-        <attr name="isCyclic" format="boolean" />
+    <attr name="normalTextColor" format="color" />
+    <attr name="normalTextSize" format="dimension" />
+    <attr name="selectedTextColor" format="color" />
+    <attr name="selectedTextSize" format="dimension" />
+    <attr name="isCyclic" format="boolean" />
 
-        <attr name="lineColor" format="color" />
-        <attr name="lineHeight" format="dimension" />
+    <attr name="lineColor" format="color" />
+    <attr name="lineHeight" format="dimension" />
 
-        <attr name="noEmpty" format="boolean"/>
-        <attr name="isEnable" format="boolean"/>
+    <attr name="noEmpty" format="boolean" />
+    <attr name="isEnable" format="boolean" />
 
-        <attr name="maskDarkColor" format="color" />
-        <attr name="maskLightColor" format="color" />
+    <attr name="maskDarkColor" format="color" />
+    <attr name="maskLightColor" format="color" />
 
-        <attr name="inputBackground" format="reference"/>
-        <attr name="inputMarginLeft" format="dimension"/>
-        <attr name="inputMarginRight" format="dimension"/>
-        <attr name="inputTextColor" format="color"/>
+    <attr name="inputBackground" format="reference" />
+    <attr name="inputMarginLeft" format="dimension" />
+    <attr name="inputMarginRight" format="dimension" />
+    <attr name="inputTextColor" format="color" />
 
-        <attr name="withInputText" format="boolean"/>
-        <attr name="android:inputType"/>
-    </declare-styleable>
+    <attr name="withInputText" format="boolean" />
+    <attr name="android:inputType" />
+    <attr name="android:maxWidth" />
+  </declare-styleable>
 
 
 </resources>
